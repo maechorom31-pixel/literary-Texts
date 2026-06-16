@@ -162,6 +162,45 @@
         "의지"
       ],
       "estMinutes": 11
+    },
+    {
+      "id": "011-wonga",
+      "order": 11,
+      "category": "gojeonsiga",
+      "title": "원가",
+      "subtitle": "신충 · 약속을 저버린 임(효성왕)을 원망하는 향가",
+      "tags": [
+        "시험범위",
+        "향가",
+        "주술성"
+      ],
+      "estMinutes": 11
+    },
+    {
+      "id": "012-jinjungeum",
+      "order": 12,
+      "category": "gojeonsiga",
+      "title": "진중음",
+      "subtitle": "이순신 · 전란 속 우국충정과 귀거래 소망",
+      "tags": [
+        "시험범위",
+        "한시",
+        "우국"
+      ],
+      "estMinutes": 11
+    },
+    {
+      "id": "013-kimsamhyeon",
+      "order": 13,
+      "category": "gojeonsiga",
+      "title": "내 영혼 술에 섞여",
+      "subtitle": "김삼현 · 영혼을 술에 섞는 참신한 발상의 평시조",
+      "tags": [
+        "시험범위",
+        "평시조",
+        "연정"
+      ],
+      "estMinutes": 10
     }
   ]
 }
