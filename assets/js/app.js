@@ -469,6 +469,10 @@
     const judges = (it.judgments || []).map((j, i) => renderOXItem(j, i, "jb")).join("");
 
     return `
+      <div class="unit-progress" id="unitProgress">
+        <div class="unit-progress-track"><div class="unit-progress-fill" id="unitProgressFill"></div></div>
+        <span class="unit-progress-label" id="unitProgressLabel">진행 0%</span>
+      </div>
       ${it.oneLine ? `<div class="oneline-banner">${escapeHtml(it.oneLine)}</div>` : ""}
 
       <div class="unit-section">
@@ -494,25 +498,37 @@
   }
 
   function bindUnit(it) {
-    $$(".concept-card").forEach(c => {
+    const cards  = $$(".concept-card");
+    const blocks = $$(".judge-block");
+    const total  = cards.length + blocks.length;
+    const seen   = new Set();
+    let oxDone = 0, oxRight = 0;
+    const fill = $("#unitProgressFill"), plabel = $("#unitProgressLabel"), scoreEl = $("#oxScore");
+
+    const update = () => {
+      const done = seen.size + oxDone;
+      const pct  = total ? Math.round(done / total * 100) : 0;
+      if (fill)   fill.style.width = pct + "%";
+      if (plabel) plabel.textContent = pct >= 100 ? "학습 완료 ✓" : `진행 ${pct}%`;
+      if (plabel) plabel.classList.toggle("done", pct >= 100);
+      if (scoreEl) {
+        scoreEl.textContent = oxDone === 0
+          ? `총 ${blocks.length}문항`
+          : `${oxRight} / ${oxDone} 정답 (전체 ${blocks.length})`;
+        scoreEl.classList.toggle("done", oxDone === blocks.length && blocks.length > 0);
+      }
+    };
+    update();
+
+    cards.forEach((c, i) => {
       c.addEventListener("click", () => {
         c.classList.toggle("revealed");
         const t = c.querySelector(".concept-toggle");
         if (t) t.textContent = c.classList.contains("revealed") ? "확인 완료" : "눌러서 확인 ▾";
+        if (c.classList.contains("revealed")) { seen.add(i); update(); }
       });
     });
-    const blocks = $$(".judge-block");
-    const oxTotal = blocks.length;
-    let oxDone = 0, oxRight = 0;
-    const scoreEl = $("#oxScore");
-    const renderScore = () => {
-      if (!scoreEl) return;
-      scoreEl.textContent = oxDone === 0
-        ? `총 ${oxTotal}문항`
-        : `${oxRight} / ${oxDone} 정답 (전체 ${oxTotal})`;
-      scoreEl.classList.toggle("done", oxDone === oxTotal && oxTotal > 0);
-    };
-    renderScore();
+
     blocks.forEach(block => {
       const jid = block.dataset.jid;
       const correct = block.dataset.correct === "1";
@@ -529,7 +545,7 @@
             verdict.classList.add(correct ? "is-correct" : "is-incorrect");
           }
           oxDone++; if (right) oxRight++;
-          renderScore();
+          update();
           window.Store.recordExam(state.progress, state.currentId, jid, right ? "correct" : "wrong");
         });
       });

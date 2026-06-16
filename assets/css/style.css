@@ -552,6 +552,42 @@ body {
   .gichul-block, .judge-block { padding: 14px 14px; }
 }
 
+/* ── 상단 진행바 (학습 화면) ── */
+.unit-progress {
+  position: sticky; top: 0; z-index: 6;
+  display: flex; align-items: center; gap: 12px;
+  background: var(--paper);
+  padding: 12px 0 12px; margin: -8px 0 22px;
+  border-bottom: 1px solid var(--rule);
+}
+.unit-progress-track {
+  flex: 1; height: 6px; border-radius: 3px;
+  background: var(--paper-2); overflow: hidden;
+}
+.unit-progress-fill {
+  height: 100%; width: 0;
+  background: linear-gradient(90deg, var(--gold), #c2a35e);
+  transition: width 0.35s ease;
+}
+.unit-progress-label {
+  font-family: 'Pretendard', sans-serif; font-size: 12px; font-weight: 600;
+  color: var(--ink-3); white-space: nowrap; min-width: 60px; text-align: right;
+}
+.unit-progress-label.done { color: var(--status-mastered); }
+
+/* ── 가독성·여백 정조정 (참고서 밀도) ── */
+.concept-val   { line-height: 1.85; }
+.judge-statement { line-height: 1.75; }
+.bogi-text     { line-height: 1.9; }
+.judge-why-text, .exam-rationale { line-height: 1.78; }
+.unit-section  { margin-bottom: 40px; }
+.unit-section-title { letter-spacing: -0.01em; }
+.focus-head    { letter-spacing: -0.01em; }
+.oneline-banner { line-height: 1.65; }
+
+/* ── 색감 미세 조정 (라이트 모드 한정, 다크는 원본 유지) ── */
+:root:not([data-theme="dark"]) { --rule: #d7ccb5; }
+
 /* Step 3 · O/X 선지 판단 */
 .judge-wrap { margin-top: 30px; }
 .judge-head {
