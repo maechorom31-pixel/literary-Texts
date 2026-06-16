@@ -318,6 +318,45 @@
         "고발"
       ],
       "estMinutes": 14
+    },
+    {
+      "id": "023-wangsujae",
+      "order": 23,
+      "category": "gojeonsanmun",
+      "title": "왕수재취득용녀설",
+      "subtitle": "작자 미상 · 거타지 설화를 변용한 신화적 영웅 소설",
+      "tags": [
+        "시험범위",
+        "고전소설",
+        "신성성"
+      ],
+      "estMinutes": 13
+    },
+    {
+      "id": "024-seohaemureung",
+      "order": 24,
+      "category": "gojeonsanmun",
+      "title": "서해무릉기",
+      "subtitle": "작자 미상 · 혼사 장애를 극복하는 애정 소설",
+      "tags": [
+        "시험범위",
+        "고전소설",
+        "혼사장애"
+      ],
+      "estMinutes": 13
+    },
+    {
+      "id": "025-imjinrok",
+      "order": 25,
+      "category": "gojeonsanmun",
+      "title": "임진록",
+      "subtitle": "작자 미상 · 임진왜란 영웅들의 활약을 그린 역사 소설",
+      "tags": [
+        "시험범위",
+        "역사소설",
+        "김응서"
+      ],
+      "estMinutes": 13
     }
   ]
 }
