@@ -11,14 +11,24 @@
   },
   "passages": [
     {
-      "id": "001-gyeonyeoga-sangron",
+      "id": "001-gyeonyeoga",
       "order": 1,
-      "category": "bokhap",
-      "title": "계녀가 · 상론",
-      "subtitle": "딸에게 도리를 권계하는 규방 가사와, 관상으로 사람을 판단하는 통념을 비판하는 논변",
-      "structure": "compare",
-      "tags": ["갈래복합", "가사", "한문 산문", "통념·경계", "대조"],
-      "estMinutes": 18
+      "category": "gojeonsiga",
+      "title": "계녀가",
+      "subtitle": "시집가는 딸에게 부녀자의 도리를 권계하는 규방 가사",
+      "structure": "sequence",
+      "tags": ["규방가사", "교훈", "갈래복합 연계"],
+      "estMinutes": 12
+    },
+    {
+      "id": "002-sangron",
+      "order": 2,
+      "category": "gojeonsanmun",
+      "title": "상론",
+      "subtitle": "관상으로 사람을 판단하는 통념을 비판하는 정약용의 논변",
+      "structure": "thesis_support",
+      "tags": ["논변", "정약용", "통념 비판", "갈래복합 연계"],
+      "estMinutes": 13
     }
   ]
 }
