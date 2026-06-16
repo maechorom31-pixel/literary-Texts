@@ -357,6 +357,58 @@
         "김응서"
       ],
       "estMinutes": 13
+    },
+    {
+      "id": "026-gowoolsa",
+      "order": 26,
+      "category": "gojeonsiga",
+      "title": "고울사 저 꽃이여",
+      "subtitle": "안민영 · 지는 꽃의 예찬과 안타까움(인생 비유)",
+      "tags": [
+        "시험범위",
+        "시조",
+        "예찬"
+      ],
+      "estMinutes": 9
+    },
+    {
+      "id": "027-ggoiggol",
+      "order": 27,
+      "category": "gojeonsiga",
+      "title": "꾀꼴꾀꼴 우는 소리에",
+      "subtitle": "오경화 · 삼대가 어울린 가정의 평화로운 일상",
+      "tags": [
+        "시험범위",
+        "시조",
+        "일상"
+      ],
+      "estMinutes": 9
+    },
+    {
+      "id": "028-nongbu",
+      "order": 28,
+      "category": "gojeonsiga",
+      "title": "농부를 대신하여 읊다",
+      "subtitle": "이규보 · 농민 옹호와 지배층 수탈 비판의 한시",
+      "tags": [
+        "시험범위",
+        "한시",
+        "현실비판"
+      ],
+      "estMinutes": 10
+    },
+    {
+      "id": "029-gohyang",
+      "order": 29,
+      "category": "hyeondaeso",
+      "title": "고향",
+      "subtitle": "현진건 · 식민지 민중의 참혹한 삶을 폭로한 액자 소설",
+      "tags": [
+        "시험범위",
+        "액자소설",
+        "사실주의"
+      ],
+      "estMinutes": 14
     }
   ]
 }
