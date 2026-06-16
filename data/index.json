@@ -201,6 +201,45 @@
         "연정"
       ],
       "estMinutes": 10
+    },
+    {
+      "id": "014-duryusan",
+      "order": 14,
+      "category": "gojeonsiga",
+      "title": "두류산 양단수를",
+      "subtitle": "조식 · 지리산 절경을 무릉도원에 빗댄 예찬",
+      "tags": [
+        "시험범위",
+        "시조",
+        "자연"
+      ],
+      "estMinutes": 10
+    },
+    {
+      "id": "015-yoilwol",
+      "order": 15,
+      "category": "gojeonsiga",
+      "title": "요일월 순건곤은",
+      "subtitle": "김천택 · 변함없는 자연과 달라진 세상의 대비, 시대 탄식",
+      "tags": [
+        "시험범위",
+        "시조",
+        "대비"
+      ],
+      "estMinutes": 10
+    },
+    {
+      "id": "016-daejangbu",
+      "order": 16,
+      "category": "gojeonsiga",
+      "title": "대장부 공 이루고",
+      "subtitle": "작자 미상 · 물러난 삶의 만족감을 노래한 사설시조",
+      "tags": [
+        "시험범위",
+        "사설시조",
+        "열거"
+      ],
+      "estMinutes": 10
     }
   ]
 }
