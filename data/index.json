@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "updatedAt": "2026-06-16",
   "categories": {
     "hyeondaesi":   { "label": "현대시",   "color": "#5e548e", "order": 1 },
@@ -11,24 +11,13 @@
   },
   "passages": [
     {
-      "id": "001-gyeonyeoga",
+      "id": "001-nuruk",
       "order": 1,
-      "category": "gojeonsiga",
-      "title": "계녀가",
-      "subtitle": "시집가는 딸에게 부녀자의 도리를 권계하는 규방 가사",
-      "structure": "sequence",
-      "tags": ["규방가사", "교훈", "갈래복합 연계"],
+      "category": "hyeondaesi",
+      "title": "누룩",
+      "subtitle": "이성부 · 자기희생으로 새 시대를 여는 민중의 저력",
+      "tags": ["시험범위", "상징·의인화", "민중시"],
       "estMinutes": 12
-    },
-    {
-      "id": "002-sangron",
-      "order": 2,
-      "category": "gojeonsanmun",
-      "title": "상론",
-      "subtitle": "관상으로 사람을 판단하는 통념을 비판하는 정약용의 논변",
-      "structure": "thesis_support",
-      "tags": ["논변", "정약용", "통념 비판", "갈래복합 연계"],
-      "estMinutes": 13
     }
   ]
 }

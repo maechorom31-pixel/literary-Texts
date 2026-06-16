@@ -109,7 +109,6 @@
       <div class="hub" id="hub">
         <div class="hub-actions">
           <button class="btn-dash" id="btnDash" type="button">📊 학습 대시보드</button>
-          <button class="btn-dash" id="btnGallery" type="button">🖼 도식 갤러리</button>
           <span class="hub-actions-spacer"></span>
           <button class="btn-theme" id="btnTheme" type="button" title="다크 모드 토글">🌙</button>
         </div>
@@ -385,55 +384,124 @@
   }
 
   function bindStudyFooter() {
-    $("#btnPrev").onclick = () => goStep(state.step - 1);
-    $("#btnNext").onclick = () => goStep(state.step + 1);
+    // 새 2부 형식: 단계 네비게이션 미사용 → 푸터 숨김
+    const ft = document.querySelector(".study-footer");
+    if (ft) ft.style.display = "none";
   }
 
   function renderStudy() {
     const it = state.currentPassage;
-
-    // step indicator
-    $("#stepText").textContent = `${state.step + 1} / 4`;
-    $("#stepDots").innerHTML = [0,1,2,3].map(i =>
-      `<span class="step-dot ${i === state.step ? "active" : (i < state.step ? "done" : "")}"></span>`
-    ).join("");
+    const si = document.querySelector(".step-indicator");
+    if (si) si.style.display = "none";
+    const ft = document.querySelector(".study-footer");
+    if (ft) ft.style.display = "none";
+    $("#studyTitle").textContent = it.author ? `${it.title} · ${it.author}` : it.title;
 
     const stage = $("#studyStage");
-    if (state.step === 0) {
-      stage.innerHTML = renderPredict(it);
-    } else if (state.step === 1) {
-      stage.innerHTML = renderPassageStage(it);
-      bindPassageStage(it);
-    } else if (state.step === 2) {
-      stage.innerHTML = renderRecall(it);
-      bindRecall(it);
-    } else {
-      stage.innerHTML = renderEval(it);
-      bindEval(it);
-    }
-
-    $("#btnPrev").disabled = state.step === 0;
-    const nxt = $("#btnNext");
-    if (state.step < 3) {
-      nxt.style.display = "";
-      nxt.textContent = ["지문 읽기 →", "회상 단계 →", "자기평가 →"][state.step];
-    } else {
-      nxt.style.display = "none";
-    }
+    stage.innerHTML = renderUnit(it);
+    bindUnit(it);
     document.querySelector(".study-body").scrollTop = 0;
-
-    window.Store.recordStep(state.progress, state.currentId, state.step);
+    window.Store.recordStep(state.progress, state.currentId, 0);
   }
 
-  function goStep(n) {
-    if (n < 0 || n > 3) return;
-    if (state.step === n) return; // 중복 호출 방지
-    state.step = n;
-    // hashchange 재진입 방지를 위해 replaceState 사용
-    if (state.currentId) {
-      history.replaceState(null, "", `#/p/${state.currentId}/${n}`);
-    }
-    renderStudy();
+  function goStep() { /* no-op (2부 형식) */ }
+
+  // O/X 선지 한 항목
+  function renderOXItem(j, idx, prefix) {
+    const trap = j.trap ? `<span class="trap-chip">함정 · ${escapeHtml(j.trap)}</span>` : "";
+    return `
+      <div class="judge-block" data-jid="${prefix}-${idx}" data-correct="${j.correct ? "1" : "0"}">
+        <div class="judge-statement">${escapeHtml(j.statement)}</div>
+        <div class="judge-btns">
+          <button class="judge-btn" type="button" data-pick="1">◯ 옳다</button>
+          <button class="judge-btn" type="button" data-pick="0">✕ 틀리다</button>
+        </div>
+        <div class="judge-why">
+          <span class="judge-verdict"></span>${trap}
+          ${j.why ? `<div class="judge-why-text">${escapeHtml(j.why)}</div>` : ""}
+        </div>
+      </div>`;
+  }
+
+  function renderUnit(it) {
+    const focus = (it.focusPoints || []).map((c, i) => `
+      <div class="concept-card" data-idx="${i}">
+        <div class="concept-key">
+          ${c.chip ? `<span class="chip">${escapeHtml(c.chip)}</span>` : ""}
+          <span class="focus-head">${escapeHtml(c.head || "")}</span>
+          <span class="concept-toggle">눌러서 확인 ▾</span>
+        </div>
+        <div class="concept-val">${escapeHtml(c.body || "")}</div>
+      </div>`).join("");
+
+    const gichul = (it.gichul || []).map((g, gi) => {
+      const bogi = g.bogi ? `
+        <div class="bogi-box">
+          <div class="bogi-label">&lt;보기&gt; 읽어보기</div>
+          <div class="bogi-text">${escapeHtml(g.bogi)}</div>
+        </div>` : "";
+      const items = (g.items || []).map((j, i) => renderOXItem(j, i, `gi${gi}`)).join("");
+      return `
+        <div class="gichul-block">
+          <div class="gichul-exam">📜 ${escapeHtml(g.exam || "기출")}</div>
+          ${bogi}${items}
+        </div>`;
+    }).join("");
+
+    const judges = (it.judgments || []).map((j, i) => renderOXItem(j, i, "jb")).join("");
+
+    return `
+      ${it.oneLine ? `<div class="oneline-banner">${escapeHtml(it.oneLine)}</div>` : ""}
+
+      <div class="unit-section">
+        <div class="unit-section-title">Ⅰ. 작품 안내·이해</div>
+        <p class="unit-hint">핵심은 ‘생각 → 눌러 확인’. 카드를 눌러 펼쳐 보세요.</p>
+        <div class="concept-list">${focus}</div>
+      </div>
+
+      ${gichul ? `
+      <div class="unit-section">
+        <div class="unit-section-title">🔎 기출의 시선</div>
+        <p class="unit-hint">실제 기출이 이 작품을 본 관점입니다. &lt;보기&gt;는 읽고, 선지는 ◯/✕ 로 판단하세요.</p>
+        ${gichul}
+      </div>` : ""}
+
+      <div class="unit-section">
+        <div class="unit-section-title">Ⅱ. 선지 판단 (O/X)</div>
+        <p class="unit-hint">먼저 ◯/✕ 를 누른 뒤 근거·함정을 확인하세요.</p>
+        ${judges}
+      </div>
+
+      <div class="unit-section">${renderEval(it)}</div>`;
+  }
+
+  function bindUnit(it) {
+    $$(".concept-card").forEach(c => {
+      c.addEventListener("click", () => {
+        c.classList.toggle("revealed");
+        const t = c.querySelector(".concept-toggle");
+        if (t) t.textContent = c.classList.contains("revealed") ? "확인 완료" : "눌러서 확인 ▾";
+      });
+    });
+    $$(".judge-block").forEach(block => {
+      const jid = block.dataset.jid;
+      const correct = block.dataset.correct === "1";
+      const verdict = block.querySelector(".judge-verdict");
+      $$(".judge-btn", block).forEach(btn => {
+        btn.addEventListener("click", () => {
+          if (block.classList.contains("answered")) return;
+          const pick = btn.dataset.pick === "1";
+          block.classList.add("answered", "revealed");
+          btn.classList.add((pick === correct) ? "picked-right" : "picked-wrong");
+          if (verdict) {
+            verdict.textContent = correct ? "◯ 옳은 선지입니다" : "✕ 틀린 선지입니다";
+            verdict.classList.add(correct ? "is-correct" : "is-incorrect");
+          }
+          window.Store.recordExam(state.progress, state.currentId, jid, (pick === correct) ? "correct" : "wrong");
+        });
+      });
+    });
+    bindEval(it);
   }
 
   // --------- Step 1: 예측 ---------
@@ -755,8 +823,8 @@
     const dueLabel = (n) => n === 0 ? "즉시 복습" : `${n}일 뒤 복습`;
     return `
       <div>
-        <div class="stage-label">Step 4 · 자기평가</div>
-        <h2 class="eval-intro">이 지문, 얼마나 이해했나요?</h2>
+        <div class="stage-label">복습 · 자기평가</div>
+        <h2 class="eval-intro">이 작품, 얼마나 이해했나요?</h2>
         <p class="eval-sub">선택에 따라 다음 복습 시점이 자동으로 정해집니다. 솔직한 게 가장 효율적이에요.</p>
         <div class="eval-grid">
           <button class="eval-card mastered" data-eval="mastered" type="button">
