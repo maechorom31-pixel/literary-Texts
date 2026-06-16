@@ -9,6 +9,7 @@
     index: null,
     progress: {},
     filter: "all",
+    statusFilter: "all",
     currentId: null,
     currentPassage: null,
     currentSvg: null,
@@ -113,6 +114,8 @@
           <button class="btn-theme" id="btnTheme" type="button" title="다크 모드 토글">🌙</button>
         </div>
         <div class="hub-stats" id="hubStats"></div>
+        <div class="hub-section-title">학습 상태</div>
+        <div class="cat-filter" id="statusFilter"></div>
         <div class="hub-section-title">갈래별 필터</div>
         <div class="cat-filter" id="catFilter"></div>
         <div class="hub-section-title">작품 목록</div>
@@ -211,7 +214,16 @@
       <div class="hub-stat"><div class="hub-stat-label">복습 권장</div><div><span class="hub-stat-value mono-num">${reviewN}</span><span class="hub-stat-suffix"> 편</span></div></div>
     `;
 
-    // 카테고리 핀
+    // 학습 상태 필터
+    const sf = state.statusFilter || "all";
+    const isSeen = (it) => window.Store.getStatus(state.progress, it.id) !== "untouched";
+    const sCounts = { all: items.length, seen: items.filter(isSeen).length };
+    sCounts.unseen = sCounts.all - sCounts.seen;
+    $("#statusFilter").innerHTML = [
+      ["all", "전체"], ["unseen", "안 본 것"], ["seen", "본 것"]
+    ].map(([k, label]) => `<button class="cat-pill ${sf === k ? "active" : ""}" data-status="${k}">${label} (${sCounts[k]})</button>`).join("");
+
+    // 갈래 필터
     const cats = state.index.categories;
     const catKeys = Object.keys(cats).sort((a,b) => (cats[a].order||0) - (cats[b].order||0));
     const counts = { all: items.length };
@@ -220,12 +232,12 @@
       `<button class="cat-pill ${state.filter === "all" ? "active" : ""}" data-cat="all">전체 (${counts.all})</button>` +
       catKeys.map(k => `<button class="cat-pill ${state.filter === k ? "active" : ""}" data-cat="${k}">${escapeHtml(cats[k].label)} (${counts[k]})</button>`).join("");
 
-    // 카드
-    const filtered = state.filter === "all"
-      ? items
-      : items.filter(it => it.category === state.filter);
+    // 카드 (갈래 + 상태 동시 적용)
+    let filtered = state.filter === "all" ? items : items.filter(it => it.category === state.filter);
+    if (sf === "seen")   filtered = filtered.filter(isSeen);
+    if (sf === "unseen") filtered = filtered.filter(it => !isSeen(it));
     if (!filtered.length) {
-      $("#cardArea").innerHTML = `<div class="hub-empty">선택한 영역에 등록된 지문이 아직 없습니다.</div>`;
+      $("#cardArea").innerHTML = `<div class="hub-empty">조건에 맞는 작품이 없습니다.</div>`;
     } else {
       $("#cardArea").innerHTML = '<div class="card-grid">' +
         filtered.map(renderCard).join("") + '</div>';
@@ -296,6 +308,12 @@
       if (gpill) {
         state.galleryFilter = gpill.dataset.cat;
         renderGallery();
+        return;
+      }
+      const spill = e.target.closest("#statusFilter .cat-pill");
+      if (spill) {
+        state.statusFilter = spill.dataset.status;
+        renderHub();
         return;
       }
       const pill = e.target.closest(".cat-pill");
