@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "updatedAt": "2026-06-16",
+  "categories": {
+    "hyeondaesi":   { "label": "현대시",   "color": "#5e548e", "order": 1 },
+    "gojeonsiga":   { "label": "고전 시가", "color": "#2a6f6f", "order": 2 },
+    "hyeondaeso":   { "label": "현대 소설", "color": "#1f5582", "order": 3 },
+    "gojeonsanmun": { "label": "고전 산문", "color": "#8b6f47", "order": 4 },
+    "geuksupil":    { "label": "극·수필",   "color": "#a83a4a", "order": 5 },
+    "bokhap":       { "label": "갈래 복합", "color": "#50643c", "order": 6 }
+  },
+  "passages": [
+    {
+      "id": "001-gyeonyeoga-sangron",
+      "order": 1,
+      "category": "bokhap",
+      "title": "계녀가 · 상론",
+      "subtitle": "딸에게 도리를 권계하는 규방 가사와, 관상으로 사람을 판단하는 통념을 비판하는 논변",
+      "structure": "compare",
+      "tags": ["갈래복합", "가사", "한문 산문", "통념·경계", "대조"],
+      "estMinutes": 18
+    }
+  ]
+}
