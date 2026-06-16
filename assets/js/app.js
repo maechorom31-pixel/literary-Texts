@@ -10,6 +10,7 @@
     progress: {},
     filter: "all",
     statusFilter: "all",
+    scopeFilter: "all",
     currentId: null,
     currentPassage: null,
     currentSvg: null,
@@ -114,6 +115,8 @@
           <button class="btn-theme" id="btnTheme" type="button" title="다크 모드 토글">🌙</button>
         </div>
         <div class="hub-stats" id="hubStats"></div>
+        <div class="hub-section-title">시험 범위</div>
+        <div class="cat-filter" id="scopeFilter"></div>
         <div class="hub-section-title">학습 상태</div>
         <div class="cat-filter" id="statusFilter"></div>
         <div class="hub-section-title">갈래별 필터</div>
@@ -214,10 +217,21 @@
       <div class="hub-stat"><div class="hub-stat-label">복습 권장</div><div><span class="hub-stat-value mono-num">${reviewN}</span><span class="hub-stat-suffix"> 편</span></div></div>
     `;
 
+    // 시험 범위 필터 (기말고사 = 시험범위 태그)
+    const scf = state.scopeFilter || "all";
+    const inScope = (it) => (it.tags || []).includes("시험범위");
+    const scCounts = { all: items.length, exam: items.filter(inScope).length };
+    $("#scopeFilter").innerHTML = [
+      ["all", "전체"], ["exam", "기말고사 범위"]
+    ].map(([k, label]) => `<button class="cat-pill ${scf === k ? "active" : ""}" data-scope="${k}">${label} (${scCounts[k]})</button>`).join("");
+
+    // 범위 적용 후 기준 집합
+    const base = scf === "exam" ? items.filter(inScope) : items;
+
     // 학습 상태 필터
     const sf = state.statusFilter || "all";
     const isSeen = (it) => window.Store.getStatus(state.progress, it.id) !== "untouched";
-    const sCounts = { all: items.length, seen: items.filter(isSeen).length };
+    const sCounts = { all: base.length, seen: base.filter(isSeen).length };
     sCounts.unseen = sCounts.all - sCounts.seen;
     $("#statusFilter").innerHTML = [
       ["all", "전체"], ["unseen", "안 본 것"], ["seen", "본 것"]
@@ -226,14 +240,14 @@
     // 갈래 필터
     const cats = state.index.categories;
     const catKeys = Object.keys(cats).sort((a,b) => (cats[a].order||0) - (cats[b].order||0));
-    const counts = { all: items.length };
-    catKeys.forEach(k => counts[k] = items.filter(it => it.category === k).length);
+    const counts = { all: base.length };
+    catKeys.forEach(k => counts[k] = base.filter(it => it.category === k).length);
     $("#catFilter").innerHTML =
       `<button class="cat-pill ${state.filter === "all" ? "active" : ""}" data-cat="all">전체 (${counts.all})</button>` +
       catKeys.map(k => `<button class="cat-pill ${state.filter === k ? "active" : ""}" data-cat="${k}">${escapeHtml(cats[k].label)} (${counts[k]})</button>`).join("");
 
-    // 카드 (갈래 + 상태 동시 적용)
-    let filtered = state.filter === "all" ? items : items.filter(it => it.category === state.filter);
+    // 카드 (범위 + 갈래 + 상태 동시 적용)
+    let filtered = state.filter === "all" ? base : base.filter(it => it.category === state.filter);
     if (sf === "seen")   filtered = filtered.filter(isSeen);
     if (sf === "unseen") filtered = filtered.filter(it => !isSeen(it));
     if (!filtered.length) {
@@ -308,6 +322,12 @@
       if (gpill) {
         state.galleryFilter = gpill.dataset.cat;
         renderGallery();
+        return;
+      }
+      const scpill = e.target.closest("#scopeFilter .cat-pill");
+      if (scpill) {
+        state.scopeFilter = scpill.dataset.scope;
+        renderHub();
         return;
       }
       const spill = e.target.closest("#statusFilter .cat-pill");
