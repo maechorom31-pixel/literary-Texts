@@ -485,7 +485,7 @@
       </div>` : ""}
 
       <div class="unit-section">
-        <div class="unit-section-title">Ⅱ. 선지 판단 (O/X)</div>
+        <div class="unit-section-title">Ⅱ. 선지 판단 (O/X) <span class="ox-score" id="oxScore"></span></div>
         <p class="unit-hint">먼저 ◯/✕ 를 누른 뒤 근거·함정을 확인하세요.</p>
         ${judges}
       </div>
@@ -501,7 +501,19 @@
         if (t) t.textContent = c.classList.contains("revealed") ? "확인 완료" : "눌러서 확인 ▾";
       });
     });
-    $$(".judge-block").forEach(block => {
+    const blocks = $$(".judge-block");
+    const oxTotal = blocks.length;
+    let oxDone = 0, oxRight = 0;
+    const scoreEl = $("#oxScore");
+    const renderScore = () => {
+      if (!scoreEl) return;
+      scoreEl.textContent = oxDone === 0
+        ? `총 ${oxTotal}문항`
+        : `${oxRight} / ${oxDone} 정답 (전체 ${oxTotal})`;
+      scoreEl.classList.toggle("done", oxDone === oxTotal && oxTotal > 0);
+    };
+    renderScore();
+    blocks.forEach(block => {
       const jid = block.dataset.jid;
       const correct = block.dataset.correct === "1";
       const verdict = block.querySelector(".judge-verdict");
@@ -509,13 +521,16 @@
         btn.addEventListener("click", () => {
           if (block.classList.contains("answered")) return;
           const pick = btn.dataset.pick === "1";
+          const right = (pick === correct);
           block.classList.add("answered", "revealed");
-          btn.classList.add((pick === correct) ? "picked-right" : "picked-wrong");
+          btn.classList.add(right ? "picked-right" : "picked-wrong");
           if (verdict) {
             verdict.textContent = correct ? "◯ 옳은 선지입니다" : "✕ 틀린 선지입니다";
             verdict.classList.add(correct ? "is-correct" : "is-incorrect");
           }
-          window.Store.recordExam(state.progress, state.currentId, jid, (pick === correct) ? "correct" : "wrong");
+          oxDone++; if (right) oxRight++;
+          renderScore();
+          window.Store.recordExam(state.progress, state.currentId, jid, right ? "correct" : "wrong");
         });
       });
     });
