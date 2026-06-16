@@ -240,6 +240,45 @@
         "열거"
       ],
       "estMinutes": 10
+    },
+    {
+      "id": "017-wolgok",
+      "order": 17,
+      "category": "gojeonsiga",
+      "title": "월곡답가",
+      "subtitle": "정훈 · 속세에 초연한 벗 ‘월곡’에 대한 그리움과 흠모",
+      "tags": [
+        "시험범위",
+        "연시조",
+        "흠모"
+      ],
+      "estMinutes": 11
+    },
+    {
+      "id": "018-woncheonseok",
+      "order": 18,
+      "category": "gojeonsiga",
+      "title": "눈 맞아 휘어진 대를",
+      "subtitle": "원천석 · 대나무로 노래한 굽힘 없는 절개(절의)",
+      "tags": [
+        "시험범위",
+        "평시조",
+        "절개"
+      ],
+      "estMinutes": 10
+    },
+    {
+      "id": "019-myeonangjeong",
+      "order": 19,
+      "category": "gojeonsiga",
+      "title": "면앙정가",
+      "subtitle": "송순 · 면앙정 풍경과 풍류를 노래한 은일 가사",
+      "tags": [
+        "시험범위",
+        "가사",
+        "강호가도"
+      ],
+      "estMinutes": 13
     }
   ]
 }
