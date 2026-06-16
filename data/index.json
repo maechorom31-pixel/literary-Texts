@@ -10,23 +10,20 @@
     "bokhap":       { "label": "갈래 복합", "color": "#50643c", "order": 6 }
   },
   "passages": [
-    {
-      "id": "002-ppaeatgin-deul",
-      "order": 1,
-      "category": "hyeondaesi",
-      "title": "빼앗긴 들에도 봄은 오는가",
-      "subtitle": "이상화 · 빼앗긴 국토에 봄(광복)이 올지를 묻는 저항의 노래",
-      "tags": ["시험범위", "기출 2014예비", "상징", "수미상관"],
-      "estMinutes": 14
-    },
-    {
-      "id": "001-nuruk",
-      "order": 2,
-      "category": "hyeondaesi",
-      "title": "누룩",
-      "subtitle": "이성부 · 자기희생으로 새 시대를 여는 민중의 저력",
-      "tags": ["시험범위", "상징·의인화", "민중시"],
-      "estMinutes": 12
-    }
+    { "id": "002-ppaeatgin-deul", "order": 1, "category": "hyeondaesi",
+      "title": "빼앗긴 들에도 봄은 오는가", "subtitle": "이상화 · 빼앗긴 국토에 봄(광복)이 올지를 묻는 저항의 노래",
+      "tags": ["시험범위", "기출 2014예비", "상징", "수미상관"], "estMinutes": 14 },
+    { "id": "005-choto", "order": 2, "category": "hyeondaesi",
+      "title": "초토의 시 1", "subtitle": "구상 · 전쟁의 폐허 속에서 발견하는 생명과 희망",
+      "tags": ["시험범위", "전쟁", "대비"], "estMinutes": 12 },
+    { "id": "004-yeollyun", "order": 3, "category": "hyeondaesi",
+      "title": "연륜", "subtitle": "김기림 · 과거를 끊고 열정적 삶을 다짐하는 의지",
+      "tags": ["시험범위", "기출 2009", "상징·공간"], "estMinutes": 12 },
+    { "id": "003-kkot", "order": 4, "category": "hyeondaesi",
+      "title": "꽃", "subtitle": "이육사 · 극한에도 피어날 꽃으로 노래한 신념과 의지",
+      "tags": ["시험범위", "상징", "저항시"], "estMinutes": 12 },
+    { "id": "001-nuruk", "order": 5, "category": "hyeondaesi",
+      "title": "누룩", "subtitle": "이성부 · 자기희생으로 새 시대를 여는 민중의 저력",
+      "tags": ["시험범위", "상징·의인화", "민중시"], "estMinutes": 12 }
   ]
 }
