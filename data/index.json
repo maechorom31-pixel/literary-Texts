@@ -11,8 +11,17 @@
   },
   "passages": [
     {
-      "id": "001-nuruk",
+      "id": "002-ppaeatgin-deul",
       "order": 1,
+      "category": "hyeondaesi",
+      "title": "빼앗긴 들에도 봄은 오는가",
+      "subtitle": "이상화 · 빼앗긴 국토에 봄(광복)이 올지를 묻는 저항의 노래",
+      "tags": ["시험범위", "기출 2014예비", "상징", "수미상관"],
+      "estMinutes": 14
+    },
+    {
+      "id": "001-nuruk",
+      "order": 2,
       "category": "hyeondaesi",
       "title": "누룩",
       "subtitle": "이성부 · 자기희생으로 새 시대를 여는 민중의 저력",
