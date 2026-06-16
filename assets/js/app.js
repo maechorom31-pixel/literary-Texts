@@ -488,12 +488,22 @@
 
     const judges = (it.judgments || []).map((j, i) => renderOXItem(j, i, "jb")).join("");
 
+    const cruxItems = (it.crux || []).map(c =>
+      `<li class="crux-item"><span class="crux-axis">${escapeHtml(c.axis || "")}</span><span class="crux-point">${escapeHtml(c.point || "")}</span></li>`).join("");
+    const cruxBox = cruxItems ? `
+      <div class="crux-box">
+        <div class="crux-title">🎯 크럭스 · 이 작품의 급소</div>
+        <p class="crux-hint">이 작품의 이해를 가르는 결정적 지점입니다. 아래 O/X는 이 급소에서 출제됩니다.</p>
+        <ul class="crux-list">${cruxItems}</ul>
+      </div>` : "";
+
     return `
       <div class="unit-progress" id="unitProgress">
         <div class="unit-progress-track"><div class="unit-progress-fill" id="unitProgressFill"></div></div>
         <span class="unit-progress-label" id="unitProgressLabel">진행 0%</span>
       </div>
       ${it.oneLine ? `<div class="oneline-banner">${escapeHtml(it.oneLine)}</div>` : ""}
+      ${cruxBox}
 
       <div class="unit-section">
         <div class="unit-section-title">Ⅰ. 작품 안내·이해</div>

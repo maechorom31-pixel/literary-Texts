@@ -495,6 +495,28 @@ body {
   background: var(--paper-2); border-left: 4px solid var(--gold);
   padding: 14px 18px; margin-bottom: 26px;
 }
+.crux-box {
+  background: var(--paper-2); border: 1px solid var(--rule);
+  border-top: 3px solid var(--gold); border-radius: 6px;
+  padding: 16px 18px; margin-bottom: 28px;
+}
+.crux-title {
+  font-family: 'Noto Serif KR', serif; font-weight: 700;
+  font-size: 16px; color: var(--ink); margin-bottom: 4px;
+}
+.crux-hint { font-size: 12.5px; color: var(--ink-3); margin: 0 0 12px; line-height: 1.6; }
+.crux-list { list-style: none; margin: 0; padding: 0; }
+.crux-item {
+  display: flex; gap: 10px; align-items: baseline;
+  padding: 8px 0; border-top: 1px dashed var(--rule); line-height: 1.6;
+}
+.crux-item:first-child { border-top: none; }
+.crux-axis {
+  flex: 0 0 auto; min-width: 84px;
+  font-weight: 700; font-size: 13px; color: var(--gold-deep, var(--ink));
+}
+.crux-point { flex: 1; font-size: 14.5px; color: var(--ink); }
+
 .unit-section { margin-bottom: 34px; }
 .unit-section-title {
   font-family: 'Noto Serif KR', serif; font-weight: 700;
