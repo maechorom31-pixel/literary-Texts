@@ -279,6 +279,45 @@
         "강호가도"
       ],
       "estMinutes": 13
+    },
+    {
+      "id": "020-ingan-munje",
+      "order": 20,
+      "category": "hyeondaeso",
+      "title": "인간 문제",
+      "subtitle": "강경애 · 농민에서 노동자로, 계급 의식의 각성",
+      "tags": [
+        "시험범위",
+        "사실주의",
+        "계급"
+      ],
+      "estMinutes": 15
+    },
+    {
+      "id": "021-chisuk",
+      "order": 21,
+      "category": "hyeondaeso",
+      "title": "치숙",
+      "subtitle": "채만식 · 반어적 화자로 비판 주체까지 풍자",
+      "tags": [
+        "시험범위",
+        "풍자·반어",
+        "신빙성없는화자"
+      ],
+      "estMinutes": 14
+    },
+    {
+      "id": "022-bulsin",
+      "order": 22,
+      "category": "hyeondaeso",
+      "title": "불신 시대",
+      "subtitle": "박경리 · 전후 도덕 붕괴 사회에 대한 고발",
+      "tags": [
+        "시험범위",
+        "전후소설",
+        "고발"
+      ],
+      "estMinutes": 14
     }
   ]
 }
