@@ -477,6 +477,20 @@
     "기출 2018.9모평"
    ],
    "estMinutes": 14
+  },
+  {
+   "id": "035-soksamiingok",
+   "order": 35,
+   "category": "gojeonsiga",
+   "title": "속사미인곡",
+   "subtitle": "이진유 · 추자도 유배의 시련과 연군을 사실적으로 노래한 조선 후기 유배 가사",
+   "tags": [
+    "유배가사",
+    "연군",
+    "조선후기",
+    "기출 2023.10고3"
+   ],
+   "estMinutes": 13
   }
  ]
 }
