@@ -302,7 +302,19 @@ body {
     padding: 14px 18px 10px; border-bottom: 1px solid var(--rule);
     flex-shrink: 0;
   }
+  .study-nav-filter {
+    display: flex; flex-wrap: wrap; gap: 4px;
+    padding: 10px 12px; border-bottom: 1px solid var(--rule); flex-shrink: 0;
+  }
+  .snf-chip {
+    background: var(--paper); border: 1px solid var(--rule); cursor: pointer;
+    font-family: 'Pretendard', sans-serif; font-size: 11px; color: var(--ink-2);
+    padding: 4px 9px; border-radius: 11px; line-height: 1.4;
+  }
+  .snf-chip:hover { background: var(--paper-2); }
+  .snf-chip.active { background: var(--ink); color: var(--paper); border-color: var(--ink); font-weight: 700; }
   .study-nav-list { flex: 1; overflow-y: auto; padding: 8px 0 24px; }
+  .study-nav-empty { padding: 20px 18px; font-size: 12.5px; color: var(--ink-3); }
   .study-nav-group { margin-bottom: 6px; }
   .study-nav-cat {
     font-size: 10px; font-weight: 700; letter-spacing: 0.12em;

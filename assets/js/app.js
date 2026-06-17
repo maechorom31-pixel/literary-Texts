@@ -16,6 +16,7 @@
     currentSvg: null,
     step: 0,
     collectionTab: "wrong",
+    studyNavFilter: "all",
     passageCache: {}
   };
 
@@ -397,6 +398,12 @@
         bm.textContent = on ? "★" : "☆";
         return;
       }
+      const navFilter = e.target.closest("[data-nav-filter]");
+      if (navFilter) {
+        state.studyNavFilter = navFilter.getAttribute("data-nav-filter");
+        renderStudyNav(state.currentId);
+        return;
+      }
       const navItem = e.target.closest(".study-nav-item");
       if (navItem) {
         if (navItem.dataset.id !== state.currentId) openStudy(navItem.dataset.id);
@@ -475,13 +482,22 @@
     if (!nav || !state.index) return;
     const cats = state.index.categories;
     const inScope = (it) => (it.tags || []).includes("시험범위");
-    let items = state.index.passages.slice();
-    if (state.scopeFilter === "exam") items = items.filter(inScope);
-    items.sort((a, b) => (a.order || 0) - (b.order || 0));
-    // 갈래별 그룹
+    const catKeys = Object.keys(cats).sort((a, b) => (cats[a].order || 0) - (cats[b].order || 0));
+    const nf = state.studyNavFilter || "all";
+
+    // 상단 필터: 전체 / 갈래별 / 기말고사
+    const chips = [["all", "전체"]]
+      .concat(catKeys.map(k => [k, cats[k].label]))
+      .concat([["exam", "기말고사"]])
+      .map(([k, label]) => `<button class="snf-chip ${nf === k ? "active" : ""}" data-nav-filter="${k}" type="button">${escapeHtml(label)}</button>`).join("");
+
+    // 필터 적용
+    let items = state.index.passages.slice().sort((a, b) => (a.order || 0) - (b.order || 0));
+    if (nf === "exam") items = items.filter(inScope);
+    else if (nf !== "all") items = items.filter(it => it.category === nf);
+
     const groups = {};
     items.forEach(it => (groups[it.category] = groups[it.category] || []).push(it));
-    const catKeys = Object.keys(cats).sort((a, b) => (cats[a].order || 0) - (cats[b].order || 0));
     const body = catKeys.filter(k => groups[k]).map(k => {
       const lis = groups[k].map(it => {
         const st = window.Store.getStatus3(state.progress, it.id);
@@ -494,9 +510,11 @@
       return `<div class="study-nav-group">
         <div class="study-nav-cat" style="color:${cats[k].color || "var(--ink-2)"}">${escapeHtml(cats[k].label)}</div>
         ${lis}</div>`;
-    }).join("");
-    nav.innerHTML = `<div class="study-nav-head">작품 이동</div><div class="study-nav-list">${body}</div>`;
-    // 현재 작품으로 스크롤
+    }).join("") || `<div class="study-nav-empty">해당 작품이 없습니다.</div>`;
+
+    nav.innerHTML = `<div class="study-nav-head">작품 이동</div>
+      <div class="study-nav-filter">${chips}</div>
+      <div class="study-nav-list">${body}</div>`;
     const cur = nav.querySelector(".study-nav-item.active");
     if (cur) cur.scrollIntoView({ block: "center" });
   }
