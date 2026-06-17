@@ -164,6 +164,7 @@
         <div class="study-body">
           <div class="study-stage" id="studyStage"></div>
         </div>
+        <aside class="study-nav" id="studyNav" aria-label="작품 바로 이동"></aside>
         <footer class="study-footer">
           <button class="btn" id="btnPrev">이전</button>
           <button class="btn btn-primary" id="btnNext">다음 단계</button>
@@ -342,6 +343,11 @@
         renderHub();
         return;
       }
+      const navItem = e.target.closest(".study-nav-item");
+      if (navItem) {
+        if (navItem.dataset.id !== state.currentId) openStudy(navItem.dataset.id);
+        return;
+      }
       const card = e.target.closest(".card");
       if (card) { openStudy(card.dataset.id); return; }
       const back = e.target.closest("#btnBack");
@@ -403,9 +409,42 @@
     if (location.hash !== `#/p/${id}/0`) {
       history.replaceState(null, "", `#/p/${id}/0`);
     }
+    renderStudyNav(id);
     renderStudy();
     bindStudyFooter();
     return true;
+  }
+
+  // 우측 작품 이동 패널 (데스크톱·태블릿 전용, CSS 로 폭에 따라 노출)
+  function renderStudyNav(currentId) {
+    const nav = document.getElementById("studyNav");
+    if (!nav || !state.index) return;
+    const cats = state.index.categories;
+    const inScope = (it) => (it.tags || []).includes("시험범위");
+    let items = state.index.passages.slice();
+    if (state.scopeFilter === "exam") items = items.filter(inScope);
+    items.sort((a, b) => (a.order || 0) - (b.order || 0));
+    // 갈래별 그룹
+    const groups = {};
+    items.forEach(it => (groups[it.category] = groups[it.category] || []).push(it));
+    const catKeys = Object.keys(cats).sort((a, b) => (cats[a].order || 0) - (cats[b].order || 0));
+    const body = catKeys.filter(k => groups[k]).map(k => {
+      const lis = groups[k].map(it => {
+        const st = window.Store.getStatus(state.progress, it.id);
+        const dot = st === "mastered" ? "●" : st === "review" ? "◐" : st !== "untouched" ? "○" : "·";
+        const active = it.id === currentId ? " active" : "";
+        return `<button class="study-nav-item${active}" data-id="${escapeHtml(it.id)}" type="button">
+          <span class="sn-dot sn-${st}">${dot}</span>
+          <span class="sn-title">${escapeHtml(it.title)}</span></button>`;
+      }).join("");
+      return `<div class="study-nav-group">
+        <div class="study-nav-cat" style="color:${cats[k].color || "var(--ink-2)"}">${escapeHtml(cats[k].label)}</div>
+        ${lis}</div>`;
+    }).join("");
+    nav.innerHTML = `<div class="study-nav-head">작품 이동</div><div class="study-nav-list">${body}</div>`;
+    // 현재 작품으로 스크롤
+    const cur = nav.querySelector(".study-nav-item.active");
+    if (cur) cur.scrollIntoView({ block: "center" });
   }
 
   function closeStudy() {
