@@ -517,6 +517,32 @@
     "상징"
    ],
    "estMinutes": 14
+  },
+  {
+   "id": "038-mimang",
+   "order": 38,
+   "category": "hyeondaeso",
+   "title": "미망",
+   "subtitle": "김원일 · 고부 갈등의 이면에 놓인 현대사의 질곡과 민족의 상처",
+   "tags": [
+    "현대사",
+    "분단",
+    "상징"
+   ],
+   "estMinutes": 14
+  },
+  {
+   "id": "039-baekseokjeong",
+   "order": 39,
+   "category": "gojeonsiga",
+   "title": "백석정별곡",
+   "subtitle": "신교 · 백석정에서의 자연 은거와 풍류를 노래한 강호 가사",
+   "tags": [
+    "강호가사",
+    "은거",
+    "작가연계"
+   ],
+   "estMinutes": 13
   }
  ]
 }
