@@ -307,6 +307,7 @@
       if (e.target.closest("#btnDashBack"))     { closeDashboard(); return; }
       if (e.target.closest("#btnCollection"))     { openCollection();  return; }
       if (e.target.closest("#btnCollectionBack")) { closeCollection(); return; }
+      if (e.target.closest("#btnColExport")) { exportCollectionPDF(); return; }
       const colTab = e.target.closest("[data-col-tab]");
       if (colTab) { state.collectionTab = colTab.getAttribute("data-col-tab"); renderCollection(); return; }
       const colGoto = e.target.closest(".col-goto");
@@ -1188,7 +1189,8 @@
     $("#colTabs").innerHTML = [
       ["wrong", `✕ 틀린 선지 (${wrongN})`],
       ["bookmark", `★ 장바구니 (${bmN})`]
-    ].map(([k, label]) => `<button class="col-tab ${tab === k ? "active" : ""}" data-col-tab="${k}" type="button">${label}</button>`).join("");
+    ].map(([k, label]) => `<button class="col-tab ${tab === k ? "active" : ""}" data-col-tab="${k}" type="button">${label}</button>`).join("")
+      + `<span class="col-tabs-spacer"></span><button class="col-export" id="btnColExport" type="button">🖨 PDF로 내보내기</button>`;
 
     const cont = $("#collectionContent");
     let pairs = window.Store.collectPairs(state.progress, tab);
@@ -1223,6 +1225,63 @@
         </div>`;
     }).join("");
     cont.innerHTML = `<div class="col-list">${rows}</div>`;
+  }
+
+  // 모아 보기 → 인쇄용 새 창(브라우저의 'PDF로 저장' 사용)
+  async function exportCollectionPDF() {
+    const tab = state.collectionTab;
+    let pairs = window.Store.collectPairs(state.progress, tab);
+    if (tab === "bookmark") pairs.sort((a, b) => (b[2] || 0) - (a[2] || 0));
+    if (!pairs.length) { alert("내보낼 선지가 없습니다."); return; }
+    await Promise.all([...new Set(pairs.map(p => p[0]))].map(loadPassage));
+    const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const title = tab === "wrong" ? "틀린 선지 모음" : "장바구니 선지 모음";
+    let n = 0;
+    const rows = pairs.map(([id, qid]) => {
+      const p = state.passageCache[id];
+      const it = getItemByQid(p, qid);
+      if (!it) return "";
+      n++;
+      const meta = (state.index.passages || []).find(x => x.id === id) || {};
+      const cat = (state.index.categories[meta.category] || {}).label || "";
+      const ansTxt = it.correct ? "◯ 옳은 선지" : "✕ 틀린 선지";
+      const trap = it.trap ? ` · 함정: ${esc(it.trap)}` : "";
+      return `<div class="pi">
+        <div class="pi-head"><span class="pi-no">${n}</span><span class="pi-work">${esc((p && p.title) || id)}</span><span class="pi-cat">${esc(cat)} · ${esc(it.section || "")}</span></div>
+        <div class="pi-stmt">${esc(it.statement)} <span class="pi-ox">( O&nbsp;/&nbsp;X )</span></div>
+        <div class="pi-ans">정답: ${ansTxt}${trap}</div>
+        ${it.why ? `<div class="pi-why">${esc(it.why)}</div>` : ""}
+      </div>`;
+    }).join("");
+    const today = new Date().toISOString().slice(0, 10);
+    const html = `<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>${esc(title)}</title>
+<style>
+@page { margin: 16mm 14mm; }
+* { box-sizing: border-box; }
+body { font-family: 'Malgun Gothic','Apple SD Gothic Neo',sans-serif; color:#1a1a1a; font-size:11pt; line-height:1.6; }
+h1 { font-size:16pt; margin:0 0 2px; }
+.sub { color:#666; font-size:9.5pt; margin-bottom:14px; border-bottom:2px solid #1a1a1a; padding-bottom:8px; }
+.pi { border:1px solid #ccc; border-left:3px solid #b08d3a; padding:9px 11px; margin-bottom:9px; page-break-inside:avoid; }
+.pi-head { font-size:9pt; color:#555; margin-bottom:5px; }
+.pi-no { font-weight:bold; color:#b08d3a; margin-right:6px; }
+.pi-work { font-weight:bold; color:#1a1a1a; margin-right:6px; }
+.pi-stmt { font-size:11pt; margin-bottom:5px; }
+.pi-ox { color:#888; white-space:nowrap; font-weight:bold; }
+.pi-ans { font-size:9.5pt; color:#444; font-weight:bold; }
+.pi-why { font-size:9.5pt; color:#555; margin-top:3px; }
+@media print { .noprint { display:none; } }
+.noprint { text-align:center; margin:16px 0; }
+.noprint button { font-size:13px; padding:8px 18px; cursor:pointer; }
+</style></head><body>
+<div class="noprint"><button onclick="window.print()">🖨 인쇄 / PDF로 저장</button></div>
+<h1>${esc(title)}</h1>
+<div class="sub">EBS 2027 수능특강 문학 자율학습 · 총 ${n}문항 · ${today} · O/X를 다시 풀고 정답을 확인하세요</div>
+${rows}
+<script>window.onload=function(){setTimeout(function(){window.print();},300);};<\/script>
+</body></html>`;
+    const w = window.open("", "_blank");
+    if (!w) { alert("팝업이 차단되었습니다. 팝업을 허용해 주세요."); return; }
+    w.document.open(); w.document.write(html); w.document.close();
   }
   function renderDashboard() {
     const items = state.index.passages || [];
