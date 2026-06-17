@@ -130,6 +130,29 @@
     save(progress);
   }
 
+  // ---- 3분류 학습 상태 (자동 + 수동 override) ----
+  // 값: "completed" | "studying" | "untouched"
+  function getStatus3(progress, id, intervals, now) {
+    const p = progress[id];
+    if (p && p.userStatus) return p.userStatus;        // 수동 지정이 있으면 우선
+    const s = getStatus(progress, id, intervals, now); // 없으면 자동 판정
+    if (s === "mastered")  return "completed";
+    if (s === "untouched") return "untouched";
+    return "studying";                                  // studying / review
+  }
+  function statusLabel3(s) {
+    if (s === "completed") return "학습 완료";
+    if (s === "studying")  return "학습 중";
+    return "미학습";
+  }
+  // status: "completed" | "studying" | "untouched" | null(자동으로 되돌림)
+  function setUserStatus(progress, id, status) {
+    const e = ensureEntry(progress, id);
+    if (status) { e.userStatus = status; e.userStatusAt = Date.now(); }
+    else { delete e.userStatus; delete e.userStatusAt; }
+    save(progress);
+  }
+
   function reset() {
     try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
   }
@@ -138,6 +161,7 @@
     STORAGE_KEY, DEFAULT_INTERVAL,
     load, save, getEntry, ensureEntry,
     getStatus, statusLabel,
+    getStatus3, statusLabel3, setUserStatus,
     recordStep, recordEval, recordExam, saveRecallNote,
     reset
   };

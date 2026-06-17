@@ -202,6 +202,14 @@ body {
 .status-dot.studying { background: var(--gold); }
 .status-dot.mastered { background: var(--status-mastered); }
 .status-dot.review   { background: var(--accent); }
+/* 3분류 상태 점 */
+.status-dot.s3dot-completed { background: var(--status-mastered, var(--gold)); }
+.status-dot.s3dot-studying  { background: var(--gold); }
+.status-dot.s3dot-untouched { background: var(--rule); }
+/* 카드 상태 배지 = 클릭 가능 토글 */
+.card-status { cursor: pointer; border-radius: 3px; transition: background 0.15s; }
+.card-status:hover { background: var(--paper-2); color: var(--ink); }
+.card-status .card-status-label { pointer-events: none; }
 
 .hub-empty {
   padding: 40px; text-align: center; color: var(--ink-3);
@@ -313,8 +321,9 @@ body {
     border-left-color: var(--gold);
   }
   .sn-dot { flex: 0 0 auto; font-size: 10px; color: var(--ink-3); }
-  .sn-mastered { color: var(--gold); }
-  .sn-review { color: var(--accent, #a83a4a); }
+  .sn-completed { color: var(--gold); }
+  .sn-studying { color: var(--ink-2); }
+  .sn-untouched { color: var(--rule); }
   .sn-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
 
@@ -558,6 +567,19 @@ body {
   font-weight: 700; font-size: 13px; color: var(--gold-deep, var(--ink));
 }
 .crux-point { flex: 1; font-size: 14.5px; color: var(--ink); }
+
+/* 학습 상태 수동 변경 컨트롤 (학습 화면) */
+.unit-status { display: flex; align-items: center; gap: 12px; margin: 0 0 18px; flex-wrap: wrap; }
+.unit-status-label { font-size: 12px; font-weight: 700; color: var(--ink-3); letter-spacing: 0.04em; }
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 4px; overflow: hidden; }
+.seg-btn {
+  background: var(--paper); border: none; cursor: pointer;
+  font-family: 'Pretendard', sans-serif; font-size: 12.5px; color: var(--ink-2);
+  padding: 7px 14px; border-right: 1px solid var(--rule); min-height: 36px;
+}
+.seg-btn:last-child { border-right: none; }
+.seg-btn:hover { background: var(--paper-2); }
+.seg-btn.active { background: var(--ink); color: var(--paper); font-weight: 700; }
 
 .unit-section { margin-bottom: 34px; }
 .unit-section-title {

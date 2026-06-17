@@ -229,13 +229,17 @@
     // 범위 적용 후 기준 집합
     const base = scf === "exam" ? items.filter(inScope) : items;
 
-    // 학습 상태 필터
+    // 학습 상태 필터 (3분류: 학습 완료 / 학습 중 / 미학습 — 자동+수동)
     const sf = state.statusFilter || "all";
-    const isSeen = (it) => window.Store.getStatus(state.progress, it.id) !== "untouched";
-    const sCounts = { all: base.length, seen: base.filter(isSeen).length };
-    sCounts.unseen = sCounts.all - sCounts.seen;
+    const st3 = (it) => window.Store.getStatus3(state.progress, it.id);
+    const sCounts = {
+      all: base.length,
+      completed: base.filter(it => st3(it) === "completed").length,
+      studying:  base.filter(it => st3(it) === "studying").length,
+      untouched: base.filter(it => st3(it) === "untouched").length
+    };
     $("#statusFilter").innerHTML = [
-      ["all", "전체"], ["unseen", "안 본 것"], ["seen", "본 것"]
+      ["all", "전체"], ["completed", "학습 완료"], ["studying", "학습 중"], ["untouched", "미학습"]
     ].map(([k, label]) => `<button class="cat-pill ${sf === k ? "active" : ""}" data-status="${k}">${label} (${sCounts[k]})</button>`).join("");
 
     // 갈래 필터
@@ -249,8 +253,7 @@
 
     // 카드 (범위 + 갈래 + 상태 동시 적용)
     let filtered = state.filter === "all" ? base : base.filter(it => it.category === state.filter);
-    if (sf === "seen")   filtered = filtered.filter(isSeen);
-    if (sf === "unseen") filtered = filtered.filter(it => !isSeen(it));
+    if (sf !== "all") filtered = filtered.filter(it => st3(it) === sf);
     if (!filtered.length) {
       $("#cardArea").innerHTML = `<div class="hub-empty">조건에 맞는 작품이 없습니다.</div>`;
     } else {
@@ -260,7 +263,7 @@
   }
 
   function renderCard(it) {
-    const status = window.Store.getStatus(state.progress, it.id);
+    const s3 = window.Store.getStatus3(state.progress, it.id);
     const cat = state.index.categories[it.category] || {};
     return `
       <button class="card" data-id="${escapeHtml(it.id)}">
@@ -268,10 +271,10 @@
         <div class="card-cat" style="background:${cat.color || "var(--ink-2)"}">${escapeHtml(cat.label || it.category)}</div>
         <div class="card-title">${escapeHtml(it.title)}</div>
         <div class="card-sub">${escapeHtml(it.subtitle || "")}</div>
-        <div class="card-status">
-          <span class="status-dot ${status === "untouched" ? "" : status}"></span>
-          <span>${escapeHtml(window.Store.statusLabel(status))}</span>
-        </div>
+        <span class="card-status s3-${s3}" data-status-cycle="${escapeHtml(it.id)}" title="클릭해 학습 상태 변경">
+          <span class="status-dot s3dot-${s3}"></span>
+          <span class="card-status-label">${escapeHtml(window.Store.statusLabel3(s3))}</span>
+        </span>
       </button>
     `;
   }
@@ -341,6 +344,29 @@
       if (pill) {
         state.filter = pill.dataset.cat;
         renderHub();
+        return;
+      }
+      // 학습 상태 수동 변경 — 카드의 상태 배지 클릭 시 순환
+      const cyc = e.target.closest("[data-status-cycle]");
+      if (cyc) {
+        e.preventDefault(); e.stopPropagation();
+        const id = cyc.getAttribute("data-status-cycle");
+        const order = ["untouched", "studying", "completed"];
+        const cur = window.Store.getStatus3(state.progress, id);
+        const next = order[(order.indexOf(cur) + 1) % order.length];
+        window.Store.setUserStatus(state.progress, id, next);
+        renderHub();
+        return;
+      }
+      // 학습 화면의 상태 버튼(미학습/학습 중/학습 완료)
+      const setBtn = e.target.closest("[data-set-status]");
+      if (setBtn) {
+        const id = setBtn.getAttribute("data-id");
+        const status = setBtn.getAttribute("data-set-status");
+        window.Store.setUserStatus(state.progress, id, status);
+        document.querySelectorAll("#unitStatus .seg-btn").forEach(b =>
+          b.classList.toggle("active", b.getAttribute("data-set-status") === status));
+        renderStudyNav(state.currentId);
         return;
       }
       const navItem = e.target.closest(".study-nav-item");
@@ -430,8 +456,8 @@
     const catKeys = Object.keys(cats).sort((a, b) => (cats[a].order || 0) - (cats[b].order || 0));
     const body = catKeys.filter(k => groups[k]).map(k => {
       const lis = groups[k].map(it => {
-        const st = window.Store.getStatus(state.progress, it.id);
-        const dot = st === "mastered" ? "●" : st === "review" ? "◐" : st !== "untouched" ? "○" : "·";
+        const st = window.Store.getStatus3(state.progress, it.id);
+        const dot = st === "completed" ? "●" : st === "studying" ? "◐" : "·";
         const active = it.id === currentId ? " active" : "";
         return `<button class="study-nav-item${active}" data-id="${escapeHtml(it.id)}" type="button">
           <span class="sn-dot sn-${st}">${dot}</span>
@@ -536,11 +562,20 @@
         <ul class="crux-list">${cruxItems}</ul>
       </div>` : "";
 
+    const s3 = window.Store.getStatus3(state.progress, it.id);
+    const segBtn = (k, label) => `<button class="seg-btn ${s3 === k ? "active" : ""}" data-set-status="${k}" data-id="${escapeHtml(it.id)}" type="button">${label}</button>`;
+    const statusBar = `
+      <div class="unit-status" id="unitStatus">
+        <span class="unit-status-label">학습 상태</span>
+        <div class="seg">${segBtn("untouched", "미학습")}${segBtn("studying", "학습 중")}${segBtn("completed", "학습 완료")}</div>
+      </div>`;
+
     return `
       <div class="unit-progress" id="unitProgress">
         <div class="unit-progress-track"><div class="unit-progress-fill" id="unitProgressFill"></div></div>
         <span class="unit-progress-label" id="unitProgressLabel">진행 0%</span>
       </div>
+      ${statusBar}
       ${it.oneLine ? `<div class="oneline-banner">${escapeHtml(it.oneLine)}</div>` : ""}
       ${cruxBox}
 
