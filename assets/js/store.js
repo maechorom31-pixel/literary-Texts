@@ -153,6 +153,37 @@
     save(progress);
   }
 
+  // ---- 장바구니(선지 북마크) ----
+  function toggleBookmark(progress, id, qid) {
+    const e = ensureEntry(progress, id);
+    e.bookmarks = e.bookmarks || {};
+    if (e.bookmarks[qid]) delete e.bookmarks[qid];
+    else e.bookmarks[qid] = Date.now();
+    save(progress);
+    return !!e.bookmarks[qid];
+  }
+  function isBookmarked(progress, id, qid) {
+    const e = progress[id];
+    return !!(e && e.bookmarks && e.bookmarks[qid]);
+  }
+  // 모아 보기용 (workId, qid) 목록 수집. kind: "bookmark" | "wrong"
+  function collectPairs(progress, kind) {
+    const out = [];
+    for (const id in progress) {
+      const e = progress[id] || {};
+      if (kind === "wrong") {
+        const es = e.examScore || {};
+        for (const key in es) {
+          if (es[key] === "wrong") out.push([id, key.split("::").pop()]);
+        }
+      } else {
+        const bm = e.bookmarks || {};
+        for (const qid in bm) out.push([id, qid, bm[qid]]);
+      }
+    }
+    return out;
+  }
+
   function reset() {
     try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
   }
@@ -162,6 +193,7 @@
     load, save, getEntry, ensureEntry,
     getStatus, statusLabel,
     getStatus3, statusLabel3, setUserStatus,
+    toggleBookmark, isBookmarked, collectPairs,
     recordStep, recordEval, recordExam, saveRecallNote,
     reset
   };

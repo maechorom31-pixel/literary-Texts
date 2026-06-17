@@ -14,7 +14,9 @@
     currentId: null,
     currentPassage: null,
     currentSvg: null,
-    step: 0
+    step: 0,
+    collectionTab: "wrong",
+    passageCache: {}
   };
 
   // --------- 유틸 ---------
@@ -111,6 +113,7 @@
       <div class="hub" id="hub">
         <div class="hub-actions">
           <button class="btn-dash" id="btnDash" type="button">📊 학습 대시보드</button>
+          <button class="btn-dash" id="btnCollection" type="button">📌 모아 보기</button>
           <span class="hub-actions-spacer"></span>
           <button class="btn-theme" id="btnTheme" type="button" title="다크 모드 토글">🌙</button>
         </div>
@@ -146,6 +149,16 @@
         </div>
         <div class="cat-filter" id="galleryFilter" style="margin-bottom:18px;"></div>
         <div id="galleryContent"></div>
+      </div>
+
+      <div class="dashboard" id="collection">
+        <button class="btn-back" id="btnCollectionBack" type="button">← 홈으로</button>
+        <div class="dashboard-header">
+          <span class="dashboard-title">📌 모아 보기</span>
+          <span class="dashboard-sub">담아 둔 선지와 틀린 선지를 모아서 복습</span>
+        </div>
+        <div class="col-tabs" id="colTabs"></div>
+        <div id="collectionContent"></div>
       </div>
 
       <div class="study" id="study" aria-hidden="true">
@@ -291,6 +304,12 @@
       // 대시보드/갤러리 진입·복귀
       if (e.target.closest("#btnDash"))         { openDashboard();  return; }
       if (e.target.closest("#btnDashBack"))     { closeDashboard(); return; }
+      if (e.target.closest("#btnCollection"))     { openCollection();  return; }
+      if (e.target.closest("#btnCollectionBack")) { closeCollection(); return; }
+      const colTab = e.target.closest("[data-col-tab]");
+      if (colTab) { state.collectionTab = colTab.getAttribute("data-col-tab"); renderCollection(); return; }
+      const colGoto = e.target.closest(".col-goto");
+      if (colGoto) { closeCollection(); openStudy(colGoto.getAttribute("data-id")); return; }
       if (e.target.closest("#btnGallery"))      { openGallery();    return; }
       if (e.target.closest("#btnGalleryBack"))  { closeGallery();   return; }
       if (e.target.closest("#btnTheme"))        { toggleTheme();    return; }
@@ -367,6 +386,15 @@
         document.querySelectorAll("#unitStatus .seg-btn").forEach(b =>
           b.classList.toggle("active", b.getAttribute("data-set-status") === status));
         renderStudyNav(state.currentId);
+        return;
+      }
+      // 선지 장바구니 담기/빼기
+      const bm = e.target.closest("[data-bookmark]");
+      if (bm) {
+        e.preventDefault(); e.stopPropagation();
+        const on = window.Store.toggleBookmark(state.progress, state.currentId, bm.getAttribute("data-bookmark"));
+        bm.classList.toggle("marked", on);
+        bm.textContent = on ? "★" : "☆";
         return;
       }
       const navItem = e.target.closest(".study-nav-item");
@@ -512,8 +540,11 @@
   // O/X 선지 한 항목
   function renderOXItem(j, idx, prefix) {
     const trap = j.trap ? `<span class="trap-chip">함정 · ${escapeHtml(j.trap)}</span>` : "";
+    const qid = `${prefix}-${idx}`;
+    const marked = state.currentId && window.Store.isBookmarked(state.progress, state.currentId, qid);
     return `
-      <div class="judge-block" data-jid="${prefix}-${idx}" data-correct="${j.correct ? "1" : "0"}">
+      <div class="judge-block" data-jid="${qid}" data-correct="${j.correct ? "1" : "0"}">
+        <button class="bookmark-btn ${marked ? "marked" : ""}" data-bookmark="${qid}" type="button" title="장바구니에 담기" aria-label="장바구니에 담기">${marked ? "★" : "☆"}</button>
         <div class="judge-statement">${escapeHtml(j.statement)}</div>
         <div class="judge-btns">
           <button class="judge-btn" type="button" data-pick="1">◯ 옳다</button>
@@ -1094,6 +1125,86 @@
   function closeDashboard() {
     $("#dashboard").classList.remove("active");
     $("#hub").style.display = "";
+  }
+
+  // --------- 모아 보기 (장바구니 / 틀린 선지) ---------
+  async function loadPassage(id) {
+    if (state.passageCache[id]) return state.passageCache[id];
+    if (state.currentPassage && state.currentPassage.id === id) {
+      state.passageCache[id] = state.currentPassage; return state.currentPassage;
+    }
+    try {
+      const res = await fetch(`data/passages/${id}.json`, { cache: "no-cache" });
+      if (!res.ok) throw 0;
+      const p = await res.json();
+      state.passageCache[id] = p; return p;
+    } catch (e) { return null; }
+  }
+  function getItemByQid(p, qid) {
+    if (!p) return null;
+    const m = /^(jb|gi(\d+))-(\d+)$/.exec(qid);
+    if (!m) return null;
+    const idx = +m[3];
+    if (m[1] === "jb") {
+      const j = (p.judgments || [])[idx];
+      return j ? Object.assign({ section: "선지 판단 (O/X)" }, j) : null;
+    }
+    const blk = (p.gichul || [])[+m[2]];
+    const it = blk && (blk.items || [])[idx];
+    return it ? Object.assign({ section: "🔎 기출의 시선" }, it) : null;
+  }
+  function openCollection() {
+    $("#hub").style.display = "none";
+    $("#collection").classList.add("active");
+    window.scrollTo(0, 0);
+    renderCollection();
+  }
+  function closeCollection() {
+    $("#collection").classList.remove("active");
+    $("#hub").style.display = "";
+  }
+  async function renderCollection() {
+    const tab = state.collectionTab;
+    const wrongN = window.Store.collectPairs(state.progress, "wrong").length;
+    const bmN = window.Store.collectPairs(state.progress, "bookmark").length;
+    $("#colTabs").innerHTML = [
+      ["wrong", `✕ 틀린 선지 (${wrongN})`],
+      ["bookmark", `★ 장바구니 (${bmN})`]
+    ].map(([k, label]) => `<button class="col-tab ${tab === k ? "active" : ""}" data-col-tab="${k}" type="button">${label}</button>`).join("");
+
+    const cont = $("#collectionContent");
+    let pairs = window.Store.collectPairs(state.progress, tab);
+    if (tab === "bookmark") pairs.sort((a, b) => (b[2] || 0) - (a[2] || 0));
+    if (!pairs.length) {
+      cont.innerHTML = `<div class="hub-empty">${tab === "wrong" ? "아직 틀린 선지가 없습니다. O/X를 풀면 틀린 선지가 여기 모입니다." : "담아 둔 선지가 없습니다. 선지의 ☆ 를 눌러 장바구니에 담아 보세요."}</div>`;
+      return;
+    }
+    cont.innerHTML = `<div class="hub-empty" style="border:none">불러오는 중…</div>`;
+    const ids = [...new Set(pairs.map(p => p[0]))];
+    await Promise.all(ids.map(loadPassage));
+    const idxItems = state.index.passages;
+    const rows = pairs.map(([id, qid]) => {
+      const p = state.passageCache[id];
+      const it = getItemByQid(p, qid);
+      if (!it) return "";
+      const meta = idxItems.find(x => x.id === id) || {};
+      const cat = state.index.categories[meta.category] || {};
+      const trap = it.trap ? `<span class="trap-chip">함정 · ${escapeHtml(it.trap)}</span>` : "";
+      const ans = it.correct ? `<span class="col-answer o">◯ 옳은 선지</span>` : `<span class="col-answer x">✕ 틀린 선지</span>`;
+      return `
+        <div class="col-item">
+          <div class="col-item-head">
+            <span class="col-cat" style="color:${cat.color || "var(--ink-2)"}">${escapeHtml(cat.label || "")}</span>
+            <span class="col-work">${escapeHtml((p && p.title) || id)}</span>
+            <span class="col-section">${escapeHtml(it.section || "")}</span>
+          </div>
+          <div class="col-statement">${escapeHtml(it.statement || "")}</div>
+          <div class="col-meta">${ans}${trap}</div>
+          ${it.why ? `<div class="col-why">${escapeHtml(it.why)}</div>` : ""}
+          <button class="col-goto" data-id="${escapeHtml(id)}" type="button">이 작품으로 이동 →</button>
+        </div>`;
+    }).join("");
+    cont.innerHTML = `<div class="col-list">${rows}</div>`;
   }
   function renderDashboard() {
     const items = state.index.passages || [];
