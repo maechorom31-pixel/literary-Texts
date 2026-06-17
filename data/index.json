@@ -563,6 +563,32 @@
     "민중"
    ],
    "estMinutes": 13
+  },
+  {
+   "id": "042-eunggyeseol",
+   "order": 42,
+   "category": "gojeonsanmun",
+   "title": "응계설",
+   "subtitle": "이첨 · '응방' 혁파 일화로 백성을 돌보지 않는 임금을 비판한 한문 산문",
+   "tags": [
+    "한문산문",
+    "설",
+    "비판"
+   ],
+   "estMinutes": 13
+  },
+  {
+   "id": "043-gang",
+   "order": 43,
+   "category": "hyeondaesi",
+   "title": "강을 따라갔다 돌아왔다",
+   "subtitle": "문태준 · 강의 여정으로 삶의 국면과 상실·무상감을 성찰한 시",
+   "tags": [
+    "여정",
+    "상실",
+    "무상감"
+   ],
+   "estMinutes": 13
   }
  ]
 }
