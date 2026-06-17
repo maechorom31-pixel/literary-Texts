@@ -26,11 +26,6 @@
    "label": "극·수필",
    "color": "#a83a4a",
    "order": 5
-  },
-  "bokhap": {
-   "label": "갈래 복합",
-   "color": "#50643c",
-   "order": 6
   }
  },
  "passages": [
@@ -541,6 +536,31 @@
     "강호가사",
     "은거",
     "작가연계"
+   ],
+   "estMinutes": 13
+  },
+  {
+   "id": "040-haegapwa",
+   "order": 40,
+   "category": "geuksupil",
+   "title": "해갑와기",
+   "subtitle": "김석주 · 작은 집 '해갑와'를 빌려 큰 뜻을 말한 한문 수필",
+   "tags": [
+    "한문수필",
+    "기문"
+   ],
+   "estMinutes": 13
+  },
+  {
+   "id": "041-myeonmyeon",
+   "order": 41,
+   "category": "hyeondaesi",
+   "title": "면면함에 대하여",
+   "subtitle": "고재종 · 삭풍을 견디는 느티나무로 노래한 끈질긴 삶의 의지",
+   "tags": [
+    "생명력",
+    "느티나무",
+    "민중"
    ],
    "estMinutes": 13
   }
