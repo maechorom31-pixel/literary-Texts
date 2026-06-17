@@ -1236,48 +1236,82 @@
     await Promise.all([...new Set(pairs.map(p => p[0]))].map(loadPassage));
     const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const title = tab === "wrong" ? "틀린 선지 모음" : "장바구니 선지 모음";
+    // 작품별로 묶기 (등장 순서 유지)
+    const gmap = new Map();
+    pairs.forEach(([id, qid]) => { if (!gmap.has(id)) gmap.set(id, []); gmap.get(id).push(qid); });
     let n = 0;
-    const rows = pairs.map(([id, qid]) => {
+    const sections = [...gmap.entries()].map(([id, qids]) => {
       const p = state.passageCache[id];
-      const it = getItemByQid(p, qid);
-      if (!it) return "";
-      n++;
       const meta = (state.index.passages || []).find(x => x.id === id) || {};
       const cat = (state.index.categories[meta.category] || {}).label || "";
-      const ansTxt = it.correct ? "◯ 옳은 선지" : "✕ 틀린 선지";
-      const trap = it.trap ? ` · 함정: ${esc(it.trap)}` : "";
-      return `<div class="pi">
-        <div class="pi-head"><span class="pi-no">${n}</span><span class="pi-work">${esc((p && p.title) || id)}</span><span class="pi-cat">${esc(cat)} · ${esc(it.section || "")}</span></div>
-        <div class="pi-stmt">${esc(it.statement)} <span class="pi-ox">( O&nbsp;/&nbsp;X )</span></div>
-        <div class="pi-ans">정답: ${ansTxt}${trap}</div>
-        ${it.why ? `<div class="pi-why">${esc(it.why)}</div>` : ""}
-      </div>`;
+      const items = qids.map(qid => {
+        const it = getItemByQid(p, qid);
+        if (!it) return "";
+        n++;
+        const badge = it.correct
+          ? `<span class="badge b-o">정답 ◯ 옳은 선지</span>`
+          : `<span class="badge b-x">정답 ✕ 틀린 선지</span>`;
+        const trap = it.trap ? `<span class="trap">함정 · ${esc(it.trap)}</span>` : "";
+        return `<div class="q">
+          <div class="q-no">${n}</div>
+          <div class="q-body">
+            <div class="q-stmt">${esc(it.statement)}</div>
+            <div class="q-solve">내 판단 <span class="ox">O</span><span class="ox">X</span><span class="q-sec">${esc(it.section || "")}</span></div>
+            <div class="q-ans">${badge}${trap}</div>
+            ${it.why ? `<div class="q-why">${esc(it.why)}</div>` : ""}
+          </div>
+        </div>`;
+      }).join("");
+      return `<section class="work">
+        <div class="work-head"><span class="work-cat">${esc(cat)}</span><span class="work-title">${esc((p && p.title) || id)}</span><span class="work-author">${esc((p && p.author) || "")}</span></div>
+        ${items}
+      </section>`;
     }).join("");
     const today = new Date().toISOString().slice(0, 10);
-    const html = `<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>${esc(title)}</title>
+    const subtitle = tab === "wrong" ? "틀린 선지를 다시 풀고 함정·근거를 확인하는 복습 시트" : "담아 둔 선지를 모아 다시 점검하는 학습 시트";
+    const html = `<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>${esc(title)} · EBS 수능특강 문학</title>
 <style>
-@page { margin: 16mm 14mm; }
-* { box-sizing: border-box; }
-body { font-family: 'Malgun Gothic','Apple SD Gothic Neo',sans-serif; color:#1a1a1a; font-size:11pt; line-height:1.6; }
-h1 { font-size:16pt; margin:0 0 2px; }
-.sub { color:#666; font-size:9.5pt; margin-bottom:14px; border-bottom:2px solid #1a1a1a; padding-bottom:8px; }
-.pi { border:1px solid #ccc; border-left:3px solid #b08d3a; padding:9px 11px; margin-bottom:9px; page-break-inside:avoid; }
-.pi-head { font-size:9pt; color:#555; margin-bottom:5px; }
-.pi-no { font-weight:bold; color:#b08d3a; margin-right:6px; }
-.pi-work { font-weight:bold; color:#1a1a1a; margin-right:6px; }
-.pi-stmt { font-size:11pt; margin-bottom:5px; }
-.pi-ox { color:#888; white-space:nowrap; font-weight:bold; }
-.pi-ans { font-size:9.5pt; color:#444; font-weight:bold; }
-.pi-why { font-size:9.5pt; color:#555; margin-top:3px; }
+@page { margin: 15mm 14mm 16mm; }
+* { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { font-family: 'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif; color:#23211c; font-size:10.5pt; line-height:1.62; margin:0; }
+.serif { font-family: 'Nanum Myeongjo','Apple SD Gothic Neo','Batang',serif; }
+.mast { border-bottom:2.5px solid #23211c; padding-bottom:10px; margin-bottom:18px; }
+.mast .eyebrow { font-size:8.5pt; letter-spacing:0.18em; color:#9a7b32; font-weight:700; text-transform:uppercase; }
+.mast h1 { font-family:'Nanum Myeongjo','Batang',serif; font-size:19pt; margin:3px 0 4px; font-weight:800; letter-spacing:-0.01em; }
+.mast .meta { font-size:9pt; color:#76716a; }
+.mast .meta b { color:#23211c; }
+.work { page-break-inside:auto; margin-bottom:14px; }
+.work-head { display:flex; align-items:baseline; gap:8px; margin:16px 0 8px; padding-bottom:5px; border-bottom:1px solid #ddd6c5; page-break-after:avoid; }
+.work-cat { font-size:8pt; font-weight:700; letter-spacing:0.12em; color:#9a7b32; }
+.work-title { font-family:'Nanum Myeongjo','Batang',serif; font-size:13pt; font-weight:800; }
+.work-author { font-size:9pt; color:#76716a; }
+.q { display:flex; gap:10px; padding:10px 12px; border:1px solid #e4ddcc; border-radius:5px; margin-bottom:7px; page-break-inside:avoid; background:#fff; }
+.q-no { flex:0 0 auto; width:22px; height:22px; border-radius:50%; background:#23211c; color:#fff; font-size:9.5pt; font-weight:700; text-align:center; line-height:22px; }
+.q-body { flex:1; }
+.q-stmt { font-size:11pt; line-height:1.6; margin-bottom:6px; }
+.q-solve { font-size:9pt; color:#9a948a; margin-bottom:7px; display:flex; align-items:center; gap:6px; }
+.q-solve .ox { display:inline-block; width:20px; height:20px; line-height:18px; text-align:center; border:1.4px solid #bcb4a3; border-radius:50%; font-weight:700; color:#6f6a61; }
+.q-sec { margin-left:auto; font-size:8pt; color:#b3ada3; }
+.q-ans { margin-bottom:4px; display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+.badge { font-size:8.5pt; font-weight:700; padding:2px 9px; border-radius:11px; }
+.b-o { color:#1f5582; background:#e7eff5; }
+.b-x { color:#a83a4a; background:#f6e7ea; }
+.trap { font-size:8.5pt; font-weight:700; color:#7a5b14; background:#f3ecd7; padding:2px 9px; border-radius:11px; }
+.q-why { font-size:9.5pt; line-height:1.6; color:#54504a; border-left:2.5px solid #d8cfae; padding:3px 0 3px 9px; margin-top:4px; }
+.foot { margin-top:18px; padding-top:8px; border-top:1px solid #ddd6c5; font-size:8pt; color:#a8a299; text-align:center; }
+.noprint { text-align:center; margin:14px 0; }
+.noprint button { font:700 13px 'Pretendard',sans-serif; padding:10px 22px; cursor:pointer; background:#9a7b32; color:#fff; border:none; border-radius:4px; }
 @media print { .noprint { display:none; } }
-.noprint { text-align:center; margin:16px 0; }
-.noprint button { font-size:13px; padding:8px 18px; cursor:pointer; }
 </style></head><body>
 <div class="noprint"><button onclick="window.print()">🖨 인쇄 / PDF로 저장</button></div>
-<h1>${esc(title)}</h1>
-<div class="sub">EBS 2027 수능특강 문학 자율학습 · 총 ${n}문항 · ${today} · O/X를 다시 풀고 정답을 확인하세요</div>
-${rows}
-<script>window.onload=function(){setTimeout(function(){window.print();},300);};<\/script>
+<div class="mast">
+  <div class="eyebrow">EBS 2027 수능특강 문학 · 자율학습</div>
+  <h1>${esc(title)}</h1>
+  <div class="meta">${esc(subtitle)} &nbsp;·&nbsp; 총 <b>${n}</b>문항 &nbsp;·&nbsp; ${today}</div>
+</div>
+${sections}
+<div class="foot">EBS 2027 수능특강 국어영역 문학 자율학습 · O/X를 다시 풀고 정답과 함정을 확인하세요</div>
+<script>window.onload=function(){setTimeout(function(){window.print();},350);};<\/script>
 </body></html>`;
     const w = window.open("", "_blank");
     if (!w) { alert("팝업이 차단되었습니다. 팝업을 허용해 주세요."); return; }
