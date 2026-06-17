@@ -1,6 +1,6 @@
 {
  "version": 2,
- "updatedAt": "2026-06-16",
+ "updatedAt": "2026-06-17",
  "categories": {
   "hyeondaesi": {
    "label": "현대시",
@@ -463,6 +463,20 @@
     "작가연계"
    ],
    "estMinutes": 13
+  },
+  {
+   "id": "034-bulmoji",
+   "order": 34,
+   "category": "geuksupil",
+   "title": "불모지",
+   "subtitle": "차범석 · 근대화의 그늘에서 몰락해 가는 가족을 그린 사실주의 희곡",
+   "tags": [
+    "희곡",
+    "사실주의",
+    "근대화",
+    "기출 2018.9모평"
+   ],
+   "estMinutes": 14
   }
  ]
 }
