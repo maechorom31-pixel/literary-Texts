@@ -82,7 +82,7 @@
   function renderLocalServerNotice() {
     return `
       <div style="padding:48px 24px;max-width:720px;margin:0 auto;color:var(--ink-2);line-height:1.75;">
-        <div style="font-family:'Noto Serif KR',serif;font-weight:900;font-size:32px;color:var(--ink);letter-spacing:-0.02em;margin-bottom:6px;">수능특강 문학 도식 자율학습</div>
+        <div style="font-family:'Noto Serif KR',serif;font-weight:900;font-size:32px;color:var(--ink);letter-spacing:-0.02em;margin-bottom:6px;">수능특강 문학 자율학습</div>
         <div style="font-size:13px;color:var(--ink-3);letter-spacing:0.04em;border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom:24px;">로컬 실행 안내</div>
 
         <p>이 페이지를 <strong>파일에서 직접 더블클릭</strong>으로 열 경우, 보안 제약(<code>file://</code> 프로토콜)으로 데이터 파일을 불러올 수 없습니다. 다음 두 가지 중 한 가지 방법을 사용해 주세요.</p>
@@ -107,8 +107,8 @@
           <span>나주고등학교 · 자율학습</span>
           <span class="mono-num" id="todayLine"></span>
         </div>
-        <h1 class="masthead-title">수능특강 문학 도식 자율학습</h1>
-        <div class="masthead-sub">EBS 2027 수능특강 국어영역 문학 · 능동 회상과 분산 반복 원칙</div>
+        <h1 class="masthead-title">수능특강 문학 자율학습</h1>
+        <div class="masthead-sub">EBS 2027 수능특강 국어영역 문학 · 작품의 급소(크럭스)와 선지 판단(O/X) 중심 학습</div>
       </header>
 
       <div class="hub" id="hub">
@@ -128,7 +128,7 @@
         <div class="hub-section-title">작품 목록</div>
         <div id="cardArea"></div>
         <div class="hub-footer">
-          <p><strong>사용 안내</strong> · 카드를 누르면 학습 모드로 들어갑니다. 사전 예측 → 정독과 도식 확인 → 핵심 개념 회상 → 자기평가의 4단계로 진행됩니다. 자기평가 결과에 따라 다음 복습 시점이 결정됩니다.</p>
+          <p><strong>사용 안내</strong> · 카드를 누르면 학습 모드로 들어갑니다. 🎯 크럭스(작품의 급소) → Ⅰ. 작품 안내·이해 → 🔎 기출의 시선 → Ⅱ. 선지 판단(O/X) 순으로 공부합니다. 학습 상태(미학습·학습 중·학습 완료)는 직접 바꿀 수 있습니다.</p>
           <p><strong>진도 저장</strong> · 모든 학습 기록은 사용 중인 브라우저에 저장됩니다. 브라우저 데이터를 삭제하면 진도가 초기화됩니다.</p>
         </div>
       </div>
