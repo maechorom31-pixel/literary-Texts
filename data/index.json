@@ -491,6 +491,32 @@
     "기출 2023.10고3"
    ],
    "estMinutes": 13
+  },
+  {
+   "id": "036-gubo",
+   "order": 36,
+   "category": "hyeondaeso",
+   "title": "소설가 구보 씨의 일일",
+   "subtitle": "박태원 · 산책자 구보의 하루로 식민지 지식인의 무기력한 내면을 그린 모더니즘 소설",
+   "tags": [
+    "모더니즘",
+    "의식의흐름",
+    "산책자"
+   ],
+   "estMinutes": 14
+  },
+  {
+   "id": "037-teulni",
+   "order": 37,
+   "category": "hyeondaeso",
+   "title": "세상에서 제일 무거운 틀니",
+   "subtitle": "박완서 · 분단 현실의 감시 속 소시민의 고통을 '틀니' 통증으로 형상화",
+   "tags": [
+    "분단",
+    "소시민",
+    "상징"
+   ],
+   "estMinutes": 14
   }
  ]
 }
