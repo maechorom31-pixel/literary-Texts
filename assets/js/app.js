@@ -105,7 +105,10 @@
       <header class="masthead">
         <div class="masthead-top">
           <span>나주고등학교 · 자율학습</span>
-          <span class="mono-num" id="todayLine"></span>
+          <span class="masthead-top-right">
+            <button class="changelog-link" id="btnChangelog" type="button" title="수정·업데이트 내역">📝 업데이트 내역</button>
+            <span class="mono-num" id="todayLine"></span>
+          </span>
         </div>
         <h1 class="masthead-title">수능특강 문학 자율학습</h1>
         <div class="masthead-sub">EBS 2027 수능특강 국어영역 문학 · 작품의 급소(크럭스)와 선지 판단(O/X) 중심 학습</div>
@@ -189,6 +192,17 @@
 
       <div class="lightbox" id="lightbox" aria-hidden="true">
         <div class="lightbox-inner" id="lightboxInner"></div>
+      </div>
+
+      <div class="changelog-modal" id="changelogModal" aria-hidden="true">
+        <div class="changelog-card">
+          <div class="changelog-head">
+            <span class="changelog-title">📝 수정·업데이트 내역</span>
+            <button class="changelog-close" id="btnChangelogClose" type="button">✕</button>
+          </div>
+          <div class="changelog-body" id="changelogBody"></div>
+          <div class="changelog-foot">학습 기록(진도·장바구니·상태)은 업데이트와 무관하게 그대로 유지됩니다.</div>
+        </div>
       </div>
 
       <div class="gallery-viewer" id="galleryViewer" aria-hidden="true">
@@ -303,6 +317,10 @@
         return;
       }
       // 대시보드/갤러리 진입·복귀
+      if (e.target.closest("#btnChangelog"))      { openChangelog();   return; }
+      if (e.target.closest("#btnChangelogClose")) { closeChangelog();  return; }
+      const clm = e.target.closest("#changelogModal");
+      if (clm && !e.target.closest(".changelog-card")) { closeChangelog(); return; }
       if (e.target.closest("#btnDash"))         { openDashboard();  return; }
       if (e.target.closest("#btnDashBack"))     { closeDashboard(); return; }
       if (e.target.closest("#btnCollection"))     { openCollection();  return; }
@@ -1144,6 +1162,34 @@
   function closeDashboard() {
     $("#dashboard").classList.remove("active");
     $("#hub").style.display = "";
+  }
+
+  // --------- 업데이트 내역 ---------
+  async function openChangelog() {
+    const modal = $("#changelogModal");
+    const body = $("#changelogBody");
+    if (!state.changelog) {
+      body.innerHTML = `<div class="hub-empty" style="border:none">불러오는 중…</div>`;
+      try {
+        const res = await fetch("data/changelog.json", { cache: "no-cache" });
+        state.changelog = (await res.json()).entries || [];
+      } catch (e) { state.changelog = []; }
+    }
+    body.innerHTML = state.changelog.length
+      ? state.changelog.map(en => `
+        <div class="cl-entry">
+          <div class="cl-date">${escapeHtml(en.date || "")}</div>
+          <div class="cl-entry-title">${escapeHtml(en.title || "")}</div>
+          <ul class="cl-items">${(en.items || []).map(it => `<li>${escapeHtml(it)}</li>`).join("")}</ul>
+        </div>`).join("")
+      : `<div class="hub-empty" style="border:none">기록이 없습니다.</div>`;
+    modal.classList.add("active");
+    modal.setAttribute("aria-hidden", "false");
+  }
+  function closeChangelog() {
+    const modal = $("#changelogModal");
+    modal.classList.remove("active");
+    modal.setAttribute("aria-hidden", "true");
   }
 
   // --------- 모아 보기 (장바구니 / 틀린 선지) ---------
