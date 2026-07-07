@@ -1,127 +1,79 @@
-# 데이터 스키마 (문학 v1)
+# 데이터 스키마 (문학 v2)
 
-수능특강 **문학** 자율학습 앱의 데이터 명세입니다. 로직/디자인(JS·CSS)은 독서 앱(`Non-literary-Texts`)을 그대로 재사용하고, **데이터(`data/`)와 도식(`diagrams/`)만** 갈아끼웁니다. 독서 스키마에서 문학에 맞게 바뀐 점은 §0에 모았습니다.
+수능특강 **문학** 자율학습 앱의 데이터 명세. 작업 절차·품질 규칙·과거 실수 예방책은 [`CLAUDE.md`](CLAUDE.md)를 먼저 읽을 것. 커밋 전 `python3 scripts/validate.py` 필수.
 
-## 0. 독서 → 문학 변경 요약
+## 1. `data/index.json`
 
-| 항목 | 독서 | 문학 |
-|---|---|---|
-| `categories` | 독서 4영역(방법·인문·사회·과학) | **갈래 6분류**: `hyeondaesi`·`gojeonsiga`·`hyeondaeso`·`gojeonsanmun`·`geuksupil`·`bokhap` |
-| `passage.paragraphs[].text` | 지문 원문 정독 | **작품 해설(분석)**. 저작권상 원문은 싣지 않고 짧은 인용 구절만 '따옴표'로 표시 |
-| Step 3 문항 | `examPoints[]` 5지선다 객관식 | **`judgments[]` O/X 선지 판단**(새 문항 X). 옳은/틀린 선지를 스스로 판단 후 근거 확인 |
-| `concepts[]` | k/v | k/v + **`tier`(1·2·3)**, **`src`**(출처 배지: 수능특강 원해설 / 보충 해석 / 더 알아두기) |
-| 진도 키 | `suneung_dokseo_*` | `suneung_munhak_*` |
-
-> **저작권** · 본 자료는 학습 보조용 해설입니다. EBS 교재 원문은 복제하지 않으며, 분석에 필요한 최소한의 구절만 인용합니다. 원문은 수능특강 해당 쪽을 펴고 함께 학습합니다.
-
-## 1. id 명명 규칙
-
-`숫자세자리-슬러그`. 숫자 prefix가 출현 순서를 결정합니다. 같은 id로 `data/passages/{id}.json`과 `diagrams/{id}.svg`가 짝을 이룹니다. 예: `001-gyeonyeoga-sangron`.
-
-## 2. data/index.json (매니페스트)
-
-허브 카드용 최소 메타만 담습니다. 본문·도식은 포함하지 않습니다.
-
-```json
+```jsonc
 {
-  "version": 1,
-  "updatedAt": "2026-06-16",
-  "categories": {
+  "version": "...", "updatedAt": "YYYY-MM-DD",
+  "categories": {            // 5갈래 고정 (bokhap 없음 — 갈래복합 세트는 갈래별로 분할 수록)
     "hyeondaesi":   { "label": "현대시",   "color": "#5e548e", "order": 1 },
     "gojeonsiga":   { "label": "고전 시가", "color": "#2a6f6f", "order": 2 },
     "hyeondaeso":   { "label": "현대 소설", "color": "#1f5582", "order": 3 },
     "gojeonsanmun": { "label": "고전 산문", "color": "#8b6f47", "order": 4 },
-    "geuksupil":    { "label": "극·수필",   "color": "#a83a4a", "order": 5 },
-    "bokhap":       { "label": "갈래 복합", "color": "#50643c", "order": 6 }
+    "geuksupil":    { "label": "극·수필",  "color": "#a83a4a", "order": 5 }
   },
-  "passages": [
-    { "id": "001-gyeonyeoga-sangron", "order": 1, "category": "bokhap",
-      "title": "계녀가 · 상론", "subtitle": "…", "structure": "compare",
-      "tags": ["갈래복합","가사","한문 산문"], "estMinutes": 18 }
-  ]
+  "passages": [ { "id", "order"(유일), "category", "title",
+                  "subtitle": "작가 · 한줄 소개", "tags": ["시험범위", ...], "estMinutes" } ]
 }
 ```
 
-## 3. data/passages/{id}.json (작품 상세)
+- `tags`의 `"시험범위"` = 기말고사 범위. 홈 '기말고사 범위' 필터·우측 패널 '기말고사' 칩에 반영.
+- 출처성 태그(`기출 YYYY…`)는 **실제 기출 gichul 블록이 있는 작품에만** 허용.
 
-블록 구성: `source` · `predict` · `passage` · `diagram` · `concepts[]` · `judgments[]` · `selfEval`.
+## 2. `data/passages/{id}.json`
 
-### source (필수)
-`book` / `section`(갈래) / `page`. 학습 헤더에 "EBS 2027 수능특강 · 갈래 복합 · 253쪽"처럼 노출.
+```jsonc
+{
+  "id": "NNN-slug", "schemaVersion": 2,
+  "category": "...",                    // index categories 키
+  "title": "...", "author": "...",     // 미상은 "작자 미상"
+  "subtitle": "한 줄 성격 규정",
+  "source": { "book": "EBS 2027 수능특강 문학", "section": "...", "page": N }, // 쪽 미상이면 0
+  "examScope": true|false,             // 시험범위(기말고사) 여부
+  "oneLine": "작품 전체를 요약하는 한 문장(짧은 '구절' 인용 가능)",
 
-### predict (필수)
-`question`(큰 글씨) / `hint`(선택) / `tip`(선택). 작품명·갈래만 보고 가설 세우기.
+  "crux": [                            // 🎯 정확히 3축 — 작품 이해를 가르는 '급소'
+    { "axis": "짧은 축 이름", "point": "왜 급소인지 한두 문장" }
+  ],
 
-### passage (필수)
-`structure`(아래 enum) + `paragraphs[]`. 각 단락은 작품 **해설**이며:
-- `id`(필수), `role`(부분 라벨, 예 "(가) 본사1 — 며느리의 도리")
-- `text`(필수, 해설 본문 — 원문이 아님. 짧은 인용은 '따옴표')
-- `summaryPrompt`/`summaryAnswer`(능동 회상용 한 줄 요약 문답)
-- `vocab[]`(시어·어휘 풀이), `revealsDiagram[]`(연결 SVG 그룹 id)
+  "focusPoints": [                     // Ⅰ. 작품 안내·이해 카드(탭하여 body 공개)
+    { "chip": "주제|상징|표현|인물|구성|줄거리|작가 연계|기출 이력|…",
+      "head": "카드 제목", "body": "설명" }
+  ],
 
-시는 **연/행** 단위, 소설·극은 **장면/사건** 단위로 단락을 나눕니다.
+  "gichul": [                          // 🔎 기출의 시선 — 우선순위: 실제 기출 > 작가 연계 > EBS 시선
+    { "exam": "2022학년도 6월 모의평가"
+             |"작가 연계 · ○○○ 「작품」 (시험명)"
+             |"EBS 수능특강의 시선",
+      "bogi": "〈보기〉 전문 + ' — 출처 한 줄.'",
+      "items": [ { "statement", "correct", "why", "trap"(X일 때 필수) } ] }
+  ],
 
-### diagram (필수)
-`file` / `structure` / `caption` / `reveal.steps[]`(그룹 id+라벨) / `altText`(=SVG `<desc>`).
+  "judgments": [                       // Ⅱ. 선지 판단 O/X — crux에서 출제
+    { "statement": "수능식 선지", "correct": true|false,
+      "why": "근거(크럭스 출제면 '[크럭스: 축명]' 접두)", "trap": "함정 유형(X만)" }
+  ],
 
-### concepts[] (필수, 3~8개) — 회상 카드 + 1·2·3차 블렌딩
-```json
-{ "k": "키워드", "v": "설명", "tier": 1, "src": "수능특강 <보기>" }
-```
-- `tier 1` = EBS 문제·해설·<보기>에서 실제로 다룬 개념 (배지 파랑)
-- `tier 2` = 보충 해석 — 내가 더한 분석 (배지 빨강)
-- `tier 3` = 더 알아두기 — 줄거리·작가·시대 배경 등 (배지 회색)
-- `src` 문자열이 카드에 배지로 표시되어 출처가 한눈에 보입니다.
-
-### judgments[] (필수) — O/X 선지 판단
-새 문항을 만들지 않고, **이 작품 대상 선지의 정오를 스스로 판단**하게 합니다.
-```json
-{ "id": "j1", "target": "(가)(나) 비교", "correct": true,
-  "statement": "이 작품에 대한 한 진술(=선지)",
-  "why": "「수능특강」 원해설 근거 + [보충] 내 해석" }
-```
-- `correct`: 이 선지가 작품에 대해 옳으면 `true`, 틀리면 `false`
-- `statement`: 옳은 선지·틀린 선지를 섞어 제시
-- `why`: 근거. `「수능특강」`(원해설)과 `[보충]`(내 해석)을 함께 적어 블렌딩
-- `target`: 어떤 관점/문항에서 나온 선지인지 라벨(선택)
-
-### selfEval (선택)
-`intervals { mastered, studying, review }` 자기평가별 복습 간격(일).
-
-## 4. enum
-
-- `category`: `hyeondaesi | gojeonsiga | hyeondaeso | gojeonsanmun | geuksupil | bokhap`
-- `passage.structure`(도식 메타포): 잠정적으로 독서의 `compare`를 재사용 중. 문학 분석축
-  (`시상전개`·`화자대상`·`정서변화`·`대비`·`인물관계`·`사건전개`·`갈등`·`서술시점` 등)으로
-  확장 예정 — 확정 시 본 절을 갱신하고 `schemaVersion`을 올립니다.
-
-## 4-1. 갈래 복합 처리 — 쪼개서 넣기
-
-갈래 복합 세트는 사용자 합의에 따라 **(가)/(나)/(다)를 각자의 갈래 유닛으로 분리**한다(예: 계녀가→`gojeonsiga`, 상론→`gojeonsanmun`). 세트 연계는 `linkedSet`으로 표시한다(선택).
-
-```json
-"linkedSet": { "label": "갈래 복합", "withId": "002-sangron", "note": "…" }
+  "selfEval": { "intervals": { "mastered": 7, "studying": 2, "review": 0 } }
+}
 ```
 
-(가)↔(나) **비교 O/X**는 별도 작업으로, 양쪽 유닛에 `[갈래복합 연계]` 태그로 공유 예정.
+### 필수 규칙
+- **crux 3축**: 서로 변별될 것(주제 재진술 금지). 시점·초점화·상징·구조·전고·표현 급소 중심.
+- **구조 표지**: 시·가사 = `구성` 칩(연/장 전개), 소설·산문·극 = `줄거리` 칩. 변형 칩(`구조`, `갈래·구성`, `구조·태도`)도 인정.
+- **X 선지**: `trap`(유형)+`why`(근거) 필수. 실제 구절·요소에 걸린 '매력적 오답'일 것.
+- **금지 일반론**: 계절순환·자연예찬·은둔·사회고발·색채대비 — 옳은 선지 근거로 금지, 비매력 오답으로도 지양.
+- **O/X 항목 순서 불변**: 학습 기록이 qid(`jb-N`, `gi{G}-N`)로 저장된다. **기존 항목 순서 변경·중간 삽입 금지, 추가는 끝에만.**
 
-## 4-2. 참고문헌 해설 블렌딩 — 출처 표기 삭제
+## 3. `data/changelog.json`
 
-EBS 외 참고문헌(타사 교재)의 해설을 블렌딩할 때는 **브랜드/저자 출처를 표기하지 않는다**(요청 사항). `concepts[].src` 배지는 EBS는 `수능특강`, 그 외는 `보충`/`더 알아두기` 같은 일반 라벨만 쓴다. 참고문헌 원문 텍스트·인덱스는 `data/_source/`(gitignore)에만 두고 공개 커밋하지 않는다.
+```jsonc
+{ "entries": [ { "date": "YYYY-MM-DD", "title": "요약", "items": ["..."] } ] } // 최신이 맨 앞
+```
+데이터·기능 수정 시마다 항목을 맨 앞에 추가. 앱 상단 '📝 업데이트 내역'에서 열람.
 
-## 4-3. O/X 선지 작성 기준 (수능 고3 관점)
+## 4. localStorage (변경 금지)
 
-`judgments[]`·`gichul[].items[]`의 선지는 **실제 수능 문학 선지의 난도**를 기준선으로 한다.
-
-1. **틀린 선지 = 매력적 오답** — 작품의 *실제 시어·구절·표현*을 근거로 삼되, 그 **의미·효과·주체·범위·정서의 방향**을 미세하게 비튼다.
-2. **금지** — 작품과 무관해 누구나 아는 뻔한 오답(계절 순환·자연 예찬·은둔·세속 이탈·사회 고발·색채 대비 등 ‘아무 시에나 붙는 오답’).
-3. 주제를 통째로 뒤집는 정반대형은 최소화하고, 가능하면 *특정 구절*을 근거로 한 미세 왜곡으로.
-4. **옳은 선지도 감상·적용 수준**(시어의 기능·상징·표현 효과·\<보기\> 적용)으로 — 단순 사실 확인 금지.
-5. `trap` 유형을 명시: `정반대 / 주제(정서) 왜곡 / 주체·대상 바꿔치기 / 범위 왜곡 / 효과 과장(왜곡) / 기능 왜곡 / 근거 없음(꼭 그럴듯할 때만)`.
-6. 한 작품의 O/X는 옳음/틀림 균형과 함정 유형 다양성을 갖춘다.
-
-## 5. 변경 이력
-- 문학 v1 (2026-06-16) — 독서 앱 구조 복제. 갈래 6분류, 해설 정독(원문 비복제), O/X 선지 판단(`judgments`),
-  개념 1·2·3차 블렌딩(`tier`/`src`) 도입.
-- 문학 v1.1 (2026-06-16) — 갈래 복합 세트를 갈래별 유닛으로 분리(`linkedSet`). 참고문헌 해설 블렌딩(출처 표기 삭제).
-  샘플: `001-gyeonyeoga`(고전 시가) · `002-sangron`(고전 산문).
+`suneung_munhak_progress_v1` — 작품별 `{ lastStep, eval, evalAt, history, examScore{qid}, userStatus, bookmarks{qid} }` / 테마 `suneung_munhak_theme`.

@@ -23,23 +23,23 @@ python3 -m http.server 8000
 또는 macOS는 `serve.command` 더블클릭.
 
 ## 새 작품 추가법 (JS는 건드리지 않음)
-1. `data/passages/{id}.json` 작성 (스키마는 [`SCHEMA.md`](SCHEMA.md))
-2. `diagrams/{id}.svg` 도식 제작 (규칙은 SCHEMA·기존 도식 참고)
-3. `data/index.json`의 `passages[]`에 카드 메타 한 줄 추가
+1. `data/passages/{id}.json` 작성 (스키마는 [`SCHEMA.md`](SCHEMA.md), 작업 규칙은 [`CLAUDE.md`](CLAUDE.md))
+2. `data/index.json`의 `passages[]`에 카드 메타 한 줄 추가
+3. `python3 scripts/validate.py`로 무결성 검증 후 커밋
 
 ## 폴더 구조
 ```
 index.html              앱 셸
 assets/css/style.css    디자인 시스템(종이-잉크 + 다크모드)
-assets/js/app.js        라우팅·렌더링
-assets/js/store.js      진도 저장 + SRS (localStorage)
-assets/js/diagram.js    SVG 주입
+assets/js/app.js        라우팅·렌더링(크럭스·O/X·모아보기·업데이트 내역)
+assets/js/store.js      진도 저장 + 학습 상태 + 장바구니 (localStorage)
 data/index.json         작품 매니페스트
 data/passages/{id}.json 작품 상세 ×N
-diagrams/{id}.svg       개념구조도 ×N
-data/_source/           원본 파싱 자료(앱에서 미사용)
+data/changelog.json     수정·업데이트 내역(앱 상단에서 열람)
+data/_source/           원본 파싱 자료(gitignore, 앱에서 미사용)
+scripts/validate.py     데이터 무결성 검증
 scripts/parse_ebs.py    수능특강 PDF→문항 파서
 ```
 
 ## 데이터 출처
-EBS 2027학년도 수능특강 국어영역 문학. 본 저장소는 학습 보조용 해설·도식이며 교재 원문을 복제하지 않습니다.
+EBS 2027학년도 수능특강 국어영역 문학. 본 저장소는 학습 보조용 해설이며 교재 원문을 복제하지 않습니다(짧은 구절 인용만 사용).
